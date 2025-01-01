@@ -8,3 +8,10 @@ Browse clippings (highlights) saved from your Kindle eReader.
 2. Upload MyClippings.txt (stored in the documents folder of your Kindle)
 
 ![image](data/example.png)
+
+## To do
+
+- Toggle displaying location and date
+- Share to Bluesky
+- Delete clipping
+- Filter by book

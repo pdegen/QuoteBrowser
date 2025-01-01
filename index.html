@@ -10,6 +10,15 @@
             max-height: 400px;
             overflow-y: auto;
         }
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -21,9 +30,15 @@
         </div>
         <div class="mb-3">
             <label for="authorDropdown" class="form-label">Filter by Author</label>
-            <select id="authorDropdown" class="form-select">
-                <option value="all">All Authors</option>
-            </select>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="authorDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    All Authors
+                </button>
+                <ul class="dropdown-menu" id="authorDropdown">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search authors..." />
+                    <!-- Dropdown options will be added dynamically here -->
+                </ul>
+            </div>
         </div>
         <div id="results" class="border p-3">
             <p class="text-muted">Highlights will appear here.</p>
@@ -33,4 +48,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-

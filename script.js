@@ -1,8 +1,9 @@
 document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-document.getElementById('authorDropdown').addEventListener('change', filterHighlights);
+document.getElementById('authorDropdown').addEventListener('click', selectAuthor);
 
 let highlights = [];
 let filteredHighlights = [];
+let authors = [];
 
 function handleFileUpload(event) {
     const file = event.target.files[0];
@@ -11,12 +12,65 @@ function handleFileUpload(event) {
         reader.onload = (e) => {
             const content = e.target.result;
             highlights = parseClippings(content);
-            updateAuthorDropdown(highlights);
+            authors = [...new Set(highlights.map(entry => entry.author))];
+            updateAuthorDropdown(authors);
             displayHighlights(highlights);
         };
         reader.readAsText(file);
     } else {
         alert("Please upload a valid .txt file.");
+    }
+}
+
+function updateAuthorDropdown(authors) {
+    const dropdown = document.getElementById('authorDropdown');
+    dropdown.innerHTML = ''; // Clear existing items
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.classList.add('search-input');
+    searchInput.id = 'searchInput';
+    searchInput.placeholder = 'Search authors...';
+    dropdown.appendChild(searchInput);
+    
+    authors.forEach(author => {
+        const option = document.createElement('li');
+        option.classList.add('dropdown-item');
+        option.textContent = author;
+        option.dataset.author = author;
+        dropdown.appendChild(option);
+    });
+
+    // Attach the event listener for search input after dropdown is populated
+    document.getElementById('authorDropdown').addEventListener('input', function(event) {
+        if (event.target && event.target.id === 'searchInput') {
+            filterAuthors(event);
+        }
+    });
+}
+
+function filterAuthors(event) {
+    const query = event.target.value.toLowerCase();
+    const options = document.querySelectorAll('#authorDropdown .dropdown-item');
+    options.forEach(option => {
+        const authorName = option.textContent.toLowerCase();
+        if (authorName.includes(query)) {
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    });
+}
+
+function selectAuthor(event) {
+    const selectedAuthor = event.target.dataset.author;
+    if (selectedAuthor) {
+        document.getElementById('authorDropdownButton').textContent = selectedAuthor;
+        if (selectedAuthor === 'all') {
+            displayHighlights(highlights);
+        } else {
+            filteredHighlights = highlights.filter(entry => entry.author === selectedAuthor);
+            displayHighlights(filteredHighlights);
+        }
     }
 }
 
@@ -33,36 +87,13 @@ function parseClippings(content) {
             //console.log("Title:", bookTitle);
             //console.log("Author:", author);
 
-            const author = lines[0].split("(").slice(-1)[0].slice(0, -2);
+            const author = lines[0].split("(").slice(-1)[0].split(")").slice(0)[0];
             const bookTitle = lines[0].split("(").slice(0, -1).join("");
             const highlight = lines.slice(2).join(' ').trim();
-
             return { bookTitle, author, highlight };
         }
         return null;
     }).filter(entry => entry !== null);
-}
-
-function updateAuthorDropdown(highlights) {
-    const dropdown = document.getElementById('authorDropdown');
-    dropdown.innerHTML = '<option value="all">All Authors</option>';
-    const authors = [...new Set(highlights.map(entry => entry.author))];
-    authors.forEach(author => {
-        const option = document.createElement('option');
-        option.value = author;
-        option.textContent = author;
-        dropdown.appendChild(option);
-    });
-}
-
-function filterHighlights() {
-    const selectedAuthor = document.getElementById('authorDropdown').value;
-    if (selectedAuthor === 'all') {
-        displayHighlights(highlights);
-    } else {
-        filteredHighlights = highlights.filter(entry => entry.author === selectedAuthor);
-        displayHighlights(filteredHighlights);
-    }
 }
 
 function displayHighlights(entries) {
@@ -81,14 +112,14 @@ function displayHighlights(entries) {
 
     for (const [bookTitle, highlights] of Object.entries(groupedByBook)) {
         const bookHeading = document.createElement('h5');
-        bookHeading.textContent = bookTitle;
+        //bookHeading.textContent = bookTitle;
+        bookHeading.innerHTML = `<hr>${bookTitle}`;
         resultsDiv.appendChild(bookHeading);
 
         highlights.forEach((highlight, index) => {
             const paragraph = document.createElement('p');
-            paragraph.textContent = `${index + 1}. ${highlight}`;
+            paragraph.innerHTML = `<hr>${index + 1}. ${highlight}`;
             resultsDiv.appendChild(paragraph);
         });
     }
 }
-

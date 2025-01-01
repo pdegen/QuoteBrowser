@@ -16,3 +16,28 @@ _site/
 # counterproductive to check this file into the repository.
 # Details at https://github.com/github/pages-gem/issues/768
 Gemfile.lock
+
+# Logs
+*.log
+*.log.*
+
+# Node modules (if any JavaScript dependencies are installed locally)
+node_modules/
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# IDE-specific files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.iml
+
+# Deployment files
+.env
+.env.local
+
+MyTestClippings.txt

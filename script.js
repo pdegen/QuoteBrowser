@@ -13,6 +13,8 @@ function handleFileUpload(event) {
             const content = e.target.result;
             highlights = parseClippings(content);
             authors = [...new Set(highlights.map(entry => entry.author))];
+            authors.sort();
+            authors = ['All', ...authors];
             updateAuthorDropdown(authors);
             displayHighlights(highlights);
         };
@@ -65,7 +67,7 @@ function selectAuthor(event) {
     const selectedAuthor = event.target.dataset.author;
     if (selectedAuthor) {
         document.getElementById('authorDropdownButton').textContent = selectedAuthor;
-        if (selectedAuthor === 'all') {
+        if (selectedAuthor === 'All') {
             displayHighlights(highlights);
         } else {
             filteredHighlights = highlights.filter(entry => entry.author === selectedAuthor);
@@ -106,19 +108,35 @@ function displayHighlights(entries) {
 
     const groupedByBook = entries.reduce((acc, entry) => {
         acc[entry.bookTitle] = acc[entry.bookTitle] || [];
-        acc[entry.bookTitle].push(entry.highlight);
+        acc[entry.bookTitle].push({
+            author: entry.author,
+            highlight: entry.highlight
+        });
+    
         return acc;
     }, {});
 
-    for (const [bookTitle, highlights] of Object.entries(groupedByBook)) {
+    entriesGroupedByBook = Object.entries(groupedByBook)
+    for (const [bookTitle, accContent] of entriesGroupedByBook) {
         const bookHeading = document.createElement('h5');
-        //bookHeading.textContent = bookTitle;
         bookHeading.innerHTML = `<hr>${bookTitle}`;
+
         resultsDiv.appendChild(bookHeading);
 
-        highlights.forEach((highlight, index) => {
+        // Create a new element for the author and add it below the book title
+        const authorHeading = document.createElement('h6');
+        const authorName = accContent[0].author; // Assuming all entries for a book have the same author
+        authorHeading.innerHTML = `${authorName}`;
+        resultsDiv.appendChild(authorHeading);
+
+
+        accContent.forEach((entry, index) => {
             const paragraph = document.createElement('p');
-            paragraph.innerHTML = `<hr>${index + 1}. ${highlight}`;
+            if (index==0)
+                paragraph.innerHTML = `${index + 1}. ${entry.highlight}`;
+            else
+                paragraph.innerHTML = `<hr>${index + 1}. ${entry.highlight}`;
+
             resultsDiv.appendChild(paragraph);
         });
     }

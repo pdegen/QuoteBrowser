@@ -14,4 +14,11 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - Toggle displaying location and date
 - Share to Bluesky
 - Delete clipping
+  - Confirmation window, don't ask again checkbox
+- Edit clipping?
+- Save/overwrite MyClippings.txt
 - Filter by book
+- Sort authors/books by number of clippings
+- Search clippings
+- Select clippings
+  - Display only selected clippings

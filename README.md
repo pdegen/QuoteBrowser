@@ -11,7 +11,7 @@ Browse clippings (highlights) saved from your Kindle eReader.
 
 ## To do
 
-- Toggle displaying location and date
+- ~~Toggle displaying location and dateToggle displaying location and date~~
 - Share to Bluesky
 - Delete clipping
   - Confirmation window, don't ask again checkbox
@@ -22,3 +22,17 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - Search clippings
 - Select clippings
   - Display only selected clippings
+
+## Changelog
+
+### [0.2.0] - 2025-01-04
+
+**Added**
+
+- **Metadata Toggle**: Toggle the visibility of the clipping's page, location, date, and time.
+
+### [0.1.0] - 2025-01-01
+
+**Added**
+
+- Initial release of the project.

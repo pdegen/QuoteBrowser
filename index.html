@@ -32,10 +32,12 @@
         <!-- Control grid -->
         <div class="mb-3">
             <!-- Grid container -->
-            <div class="d-grid" style="grid-template-rows: auto auto; grid-template-columns: 0fr 0.2fr; gap: 0.5rem; place-items: center;">
+            <div class="d-grid" style="grid-template-rows: auto auto; grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr; gap: 0.5rem; place-items: center;">
                 <!-- Top Row: Labels -->
                 <label for="authorDropdown" class="form-label">Filter by Author</label>
                 <label for="toggleMetadata" class="form-label">Show Metadata</label>
+                <label for="toggleEdits" class="form-label">Edit Highlights</label>
+                <label for="undoButton" class="form-label">Undo Edit</label>
         
                 <!-- Bottom Row: Dropdown and Toggle -->
                 <div class="dropdown">
@@ -52,6 +54,12 @@
                     <input class="form-check-input" type="checkbox" id="toggleMetadata">
                     <label class="form-check-label" for="toggleMetadata"></label>
                 </div>
+
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="toggleEdits">
+                    <label class="form-check-label" for="toggleEdits"></label>
+                </div>
+                <button id="undoButton" class="btn btn-secondary">Undo</button>
             </div>
         </div>
         

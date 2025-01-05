@@ -2,9 +2,18 @@
 
 document.getElementById('fileInput').addEventListener('change', handleFileUpload);
 document.getElementById('authorDropdown').addEventListener('click', selectAuthor);
+document.getElementById('undoButton').addEventListener('click', undo);
 // Listen for the toggle switch change
 document.getElementById('toggleMetadata').addEventListener('change', (event) => {
     showMetadata = event.target.checked;
+    if (filterActive) {
+        displayHighlights(filteredHighlights);
+    } else {
+        displayHighlights(highlights);
+    }
+});
+document.getElementById('toggleEdits').addEventListener('change', (event) => {
+    showEditButtons = event.target.checked;
     if (filterActive) {
         displayHighlights(filteredHighlights);
     } else {
@@ -15,6 +24,7 @@ document.getElementById('toggleMetadata').addEventListener('change', (event) => 
 let filteredHighlights = [];
 let authors = [];
 let showMetadata = false;
+let showEditButtons = false;
 let filterActive = false; // are we currently displaying filtered highlights?
 
 const highlights = new Map();
@@ -39,10 +49,20 @@ function undo() {
     const lastAction = undoStack.pop();
     if (lastAction && lastAction.action === 'delete') {
         highlights.set(lastAction.id, lastAction.item);
+        rerenderHighlights();
     }
 }
 
-
+function rerenderHighlights() { 
+    if (filterActive) {
+        filteredHighlights = new Map(
+            [...highlights].filter(([id, entry]) => entry.author === selectedAuthor)
+        );
+        displayHighlights(filteredHighlights);
+    } else {
+        displayHighlights(highlights)
+    }
+}
 
 function handleFileUpload(event) {
     const file = event.target.files[0];
@@ -204,23 +224,17 @@ function displayHighlights(entries) {
             deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
             deleteButton.style.marginLeft = 'auto'; // Push the button to the right
 
-            // Handle delete button click
-            deleteButton.addEventListener('click', () => {
-                // Remove the highlight from the array
-                deleteHighlight(entry.id);
+            if (showEditButtons) {
+                // Handle delete button click
+                deleteButton.addEventListener('click', () => {
+                    // Remove the highlight from the array
+                    deleteHighlight(entry.id);
+                    rerenderHighlights();
+                });
 
-                // Re-render the highlights
-                if (filterActive) {
-                    filteredHighlights = new Map(
-                        [...highlights].filter(([id, entry]) => entry.author === selectedAuthor)
-                    );
-                    displayHighlights(filteredHighlights);
-                } else {
-                    displayHighlights(highlights)
-                }
-            });
+                highlightContainer.appendChild(deleteButton)
+            }
 
-            highlightContainer.appendChild(deleteButton)
 
         
             resultsDiv.appendChild(highlightContainer);

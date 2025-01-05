@@ -14,7 +14,6 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - ~~Toggle displaying location and date~~
 - Share to Bluesky
 - ~~Delete clipping~~
-- Sort displayed clippings by author name
 - Edit clipping?
 - Save/overwrite MyClippings.txt
 - Filter by book
@@ -26,7 +25,13 @@ Browse clippings (highlights) saved from your Kindle eReader.
 
 ## Changelog
 
-### [0.2.0] - 2025-01-04
+### [0.3.0] - 2025-01-05
+
+**Added**
+
+- **Delete**: Add delete and undo buttons. Note that this does not overwrite the original file.
+
+- ### [0.2.0] - 2025-01-04
 
 **Added**
 

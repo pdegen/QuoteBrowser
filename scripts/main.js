@@ -176,7 +176,7 @@ function displayHighlights(entries) {
         return;
     }
 
-    const groupedByBook = [...entries].reduce((acc, [id, entry]) => {
+    let groupedByBook = [...entries].reduce((acc, [id, entry]) => {
         acc[entry.bookTitle] = acc[entry.bookTitle] || [];
         acc[entry.bookTitle].push({
             author: entry.author,
@@ -187,8 +187,11 @@ function displayHighlights(entries) {
         return acc;
     }, {});
 
-    let entriesGroupedByBook = Object.entries(groupedByBook)
-    for (const [bookTitle, accContent] of entriesGroupedByBook) {
+    groupedByBook = Object.entries(groupedByBook)
+    .sort((a, b) => a[1][0].author.localeCompare(b[1][0].author)); // Sort by the author of the first highlight in each book
+
+
+    for (const [bookTitle, accContent] of groupedByBook) {
         const bookHeading = document.createElement('h5');
         bookHeading.innerHTML = `<hr>${bookTitle}`;
 

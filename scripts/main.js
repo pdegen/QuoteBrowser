@@ -1,3 +1,5 @@
+//import { HighlightContainer } from './classes/HighlightContainer.js';
+
 document.getElementById('fileInput').addEventListener('change', handleFileUpload);
 document.getElementById('authorDropdown').addEventListener('click', selectAuthor);
 // Listen for the toggle switch change
@@ -10,11 +12,37 @@ document.getElementById('toggleMetadata').addEventListener('change', (event) => 
     }
 });
 
-let highlights = [];
 let filteredHighlights = [];
 let authors = [];
 let showMetadata = false;
 let filterActive = false; // are we currently displaying filtered highlights?
+
+const highlights = new Map();
+const undoStack = [];
+
+// Add highlight
+function addHighlight(id, highlight) {
+    highlights.set(id, highlight);
+}
+
+// Delete highlight
+function deleteHighlight(id) {
+    if (highlights.has(id)) {
+        const deletedItem = highlights.get(id);
+        highlights.delete(id);
+        undoStack.push({ action: 'delete', id, item: deletedItem });
+    }
+}
+
+// Undo deletion
+function undo() {
+    const lastAction = undoStack.pop();
+    if (lastAction && lastAction.action === 'delete') {
+        highlights.set(lastAction.id, lastAction.item);
+    }
+}
+
+
 
 function handleFileUpload(event) {
     const file = event.target.files[0];
@@ -22,8 +50,10 @@ function handleFileUpload(event) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const content = e.target.result;
-            highlights = parseClippings(content);
-            authors = [...new Set(highlights.map(entry => entry.author))];
+            parseClippings(content);
+            authors = [...new Set(
+                Array.from(highlights.values()).map(entry => entry.author)
+            )];
             authors.sort();
             authors = ['All Authors', ...authors];
             updateAuthorDropdown(authors);
@@ -75,15 +105,18 @@ function filterAuthors(event) {
     });
 }
 
+let selectedAuthor = "All Authors"
 function selectAuthor(event) {
-    const selectedAuthor = event.target.dataset.author;
+    selectedAuthor = event.target.dataset.author;
     if (selectedAuthor) {
         document.getElementById('authorDropdownButton').textContent = selectedAuthor;
         if (selectedAuthor === 'All Authors') {
             displayHighlights(highlights);
             filterActive = false;
         } else {
-            filteredHighlights = highlights.filter(entry => entry.author === selectedAuthor);
+            filteredHighlights = new Map(
+                [...highlights].filter(([id, entry]) => entry.author === selectedAuthor)
+            );
             displayHighlights(filteredHighlights);
             filterActive = true;
         }
@@ -91,8 +124,8 @@ function selectAuthor(event) {
 }
 
 function parseClippings(content) {
-    const entries = content.split('==========').map(entry => entry.trim()).filter(entry => entry);
-    return entries.map(entry => {
+    let entries = content.split('==========').map(entry => entry.trim()).filter(entry => entry);
+    entries = entries.map(entry => {
         const lines = entry.split('\n').filter(line => line);
         if (lines.length >= 3) {
             
@@ -108,28 +141,33 @@ function parseClippings(content) {
         }
         return null;
     }).filter(entry => entry !== null);
+    
+
+    entries.forEach((entry, id) => {
+        addHighlight(id, entry);
+    });
 }   
 
 function displayHighlights(entries) {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = '';
-    if (entries.length === 0) {
+    if (entries.size === 0) {
         resultsDiv.innerHTML = '<p class="text-muted">No highlights found.</p>';
         return;
     }
 
-    const groupedByBook = entries.reduce((acc, entry) => {
+    const groupedByBook = [...entries].reduce((acc, [id, entry]) => {
         acc[entry.bookTitle] = acc[entry.bookTitle] || [];
         acc[entry.bookTitle].push({
             author: entry.author,
             highlight: entry.highlight,
-            metadata: entry.metadata
+            metadata: entry.metadata,
+            id: id
         });
-    
         return acc;
     }, {});
 
-    entriesGroupedByBook = Object.entries(groupedByBook)
+    let entriesGroupedByBook = Object.entries(groupedByBook)
     for (const [bookTitle, accContent] of entriesGroupedByBook) {
         const bookHeading = document.createElement('h5');
         bookHeading.innerHTML = `<hr>${bookTitle}`;
@@ -159,6 +197,31 @@ function displayHighlights(entries) {
             const highlightParagraph = document.createElement('p');
             highlightParagraph.textContent = `${index + 1}. ${entry.highlight}`;
             highlightContainer.appendChild(highlightParagraph);
+
+            // Add delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+            deleteButton.style.marginLeft = 'auto'; // Push the button to the right
+
+            // Handle delete button click
+            deleteButton.addEventListener('click', () => {
+                // Remove the highlight from the array
+                deleteHighlight(entry.id);
+
+                // Re-render the highlights
+                if (filterActive) {
+                    filteredHighlights = new Map(
+                        [...highlights].filter(([id, entry]) => entry.author === selectedAuthor)
+                    );
+                    displayHighlights(filteredHighlights);
+                } else {
+                    displayHighlights(highlights)
+                }
+            });
+
+            highlightContainer.appendChild(deleteButton)
+
         
             resultsDiv.appendChild(highlightContainer);
         });

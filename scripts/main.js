@@ -87,7 +87,7 @@ function handleFileUpload(event) {
         };
 
         reader.readAsText(file);
-        
+
     }  else {
         alert("Please upload a valid .txt file.");
     }
@@ -167,11 +167,6 @@ function parseClippings(content) {
     entries = entries.map(entry => {
         const lines = entry.split('\n').filter(line => line);
         if (lines.length >= 3) {
-            
-            //const titleAuthorMatch = lines[0].match(/^(.*) \((.*)\)$/);
-            //const bookTitle = titleAuthorMatch ? titleAuthorMatch[1].trim() : 'Unknown Title';
-            //const author = lines[0]; //titleAuthorMatch ? titleAuthorMatch[2].trim() : 'Unknown Author';
-
             const author = lines[0].split("(").slice(-1)[0].split(")").slice(0)[0];
             const bookTitle = lines[0].split("(").slice(0, -1).join("");
             const metadata = lines[1].slice(2); // location, page, datetime
@@ -209,7 +204,12 @@ function displayHighlights(entries) {
     groupedByBook = Object.entries(groupedByBook)
     .sort((a, b) => a[1][0].author.localeCompare(b[1][0].author)); // Sort by the author of the first highlight in each book
 
-
+    // Count total highlights
+    const counter = document.createElement('p');
+    const totalHighlights = Object.values(groupedByBook).reduce((sum, highlights) => sum + highlights[1].length, 0);
+    counter.textContent = `Total Highlights: ${totalHighlights}`;
+    resultsDiv.appendChild(counter);
+    
     for (const [bookTitle, accContent] of groupedByBook) {
         const bookHeading = document.createElement('h5');
         bookHeading.innerHTML = `<hr>${bookTitle}`;

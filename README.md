@@ -25,13 +25,20 @@ Browse clippings (highlights) saved from your Kindle eReader.
 
 ## Changelog
 
+### [0.4.0] - 2025-01-07
+
+**Added**
+
+- **Sample Clippings**: Add button to upload sample clippings file.
+- **Highlights Counter**: Count total number of highlights displayed.
+
 ### [0.3.0] - 2025-01-05
 
 **Added**
 
 - **Delete**: Add delete and undo buttons. Note that this does not overwrite the original file.
 
-- ### [0.2.0] - 2025-01-04
+### [0.2.0] - 2025-01-04
 
 **Added**
 

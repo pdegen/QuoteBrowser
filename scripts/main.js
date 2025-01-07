@@ -1,9 +1,8 @@
-//import { HighlightContainer } from './classes/HighlightContainer.js';
-
 document.getElementById('fileInput').addEventListener('change', handleFileUpload);
 document.getElementById('authorDropdown').addEventListener('click', selectAuthor);
 document.getElementById('undoButton').addEventListener('click', undo);
-// Listen for the toggle switch change
+document.getElementById('sampleButton').addEventListener('click', uploadSample);
+
 document.getElementById('toggleMetadata').addEventListener('change', (event) => {
     showMetadata = event.target.checked;
     if (filterActive) {
@@ -12,6 +11,7 @@ document.getElementById('toggleMetadata').addEventListener('change', (event) => 
         displayHighlights(highlights);
     }
 });
+
 document.getElementById('toggleEdits').addEventListener('change', (event) => {
     showEditButtons = event.target.checked;
     if (filterActive) {
@@ -30,12 +30,10 @@ let filterActive = false; // are we currently displaying filtered highlights?
 const highlights = new Map();
 const undoStack = [];
 
-// Add highlight
 function addHighlight(id, highlight) {
     highlights.set(id, highlight);
 }
 
-// Delete highlight
 function deleteHighlight(id) {
     if (highlights.has(id)) {
         const deletedItem = highlights.get(id);
@@ -44,7 +42,6 @@ function deleteHighlight(id) {
     }
 }
 
-// Undo deletion
 function undo() {
     const lastAction = undoStack.pop();
     if (lastAction && lastAction.action === 'delete') {
@@ -64,26 +61,48 @@ function rerenderHighlights() {
     }
 }
 
+function uploadSample() {
+    fetch("data/SampleClippings.txt")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch sample file.");
+            }
+            return response.text(); // Read the file as text
+        })
+        .then(fileContent => {
+            handleFileContent(fileContent);
+        })
+        .catch(error => console.error("Error uploading sample file:", error));
+}
+
 function handleFileUpload(event) {
     const file = event.target.files[0];
+
     if (file && file.type === "text/plain") {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            const content = e.target.result;
-            parseClippings(content);
-            authors = [...new Set(
-                Array.from(highlights.values()).map(entry => entry.author)
-            )];
-            authors.sort();
-            authors = ['All Authors', ...authors];
-            updateAuthorDropdown(authors);
-            displayHighlights(highlights);
+
+        reader.onload = function (e) {
+            const fileContent = e.target.result;
+            handleFileContent(fileContent);
         };
+
         reader.readAsText(file);
-        document.getElementById('authorDropdownButton').textContent = "All Authors";
-    } else {
+        
+    }  else {
         alert("Please upload a valid .txt file.");
     }
+}
+
+function handleFileContent(fileContent) {
+        parseClippings(fileContent);
+        authors = [...new Set(
+            Array.from(highlights.values()).map(entry => entry.author)
+        )];
+        authors.sort();
+        authors = ['All Authors', ...authors];
+        updateAuthorDropdown(authors);
+        displayHighlights(highlights);
+        document.getElementById('authorDropdownButton').textContent = "All Authors";
 }
 
 function updateAuthorDropdown(authors) {

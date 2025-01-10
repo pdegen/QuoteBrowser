@@ -28,7 +28,18 @@ let showEditButtons = false;
 let filterActive = false; // are we currently displaying filtered highlights?
 
 const highlights = new Map();
-const undoStack = [];
+let undoStack = [];
+
+function clearAll() {
+    highlights.clear();
+    filteredHighlights = [];
+    undoStack = [];
+    authors = [];
+    filterActive = false;
+    updateAuthorDropdown(authors);
+    displayHighlights(highlights);
+    document.getElementById('authorDropdownButton').textContent = "All Authors";
+}
 
 function addHighlight(id, highlight) {
     highlights.set(id, highlight);
@@ -62,6 +73,7 @@ function rerenderHighlights() {
 }
 
 function uploadSample() {
+    clearAll();
     fetch("data/SampleClippings.txt")
         .then(response => {
             if (!response.ok) {
@@ -79,6 +91,7 @@ function handleFileUpload(event) {
     const file = event.target.files[0];
 
     if (file && file.type === "text/plain") {
+        clearAll();
         const reader = new FileReader();
 
         reader.onload = function (e) {
@@ -205,7 +218,7 @@ function displayHighlights(entries) {
     .sort((a, b) => a[1][0].author.localeCompare(b[1][0].author)); // Sort by the author of the first highlight in each book
 
     // Count total highlights
-    const counter = document.createElement('p');
+    const counter = document.createElement('h6');
     const totalHighlights = Object.values(groupedByBook).reduce((sum, highlights) => sum + highlights[1].length, 0);
     counter.textContent = `Total Highlights: ${totalHighlights}`;
     resultsDiv.appendChild(counter);

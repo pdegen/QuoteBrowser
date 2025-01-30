@@ -20,13 +20,14 @@
         <!-- Control grid -->
         <div class="mb-3">
             <!-- Grid container -->
-            <div class="d-grid" style="grid-template-rows: auto auto; grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr; gap: 0.5rem; place-items: center;">
+            <div class="d-grid" style="grid-template-rows: auto auto; grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr; gap: 0.5rem; place-items: center;">
                 <!-- Top Row: Labels -->
                 <label for="authorDropdown" class="form-label">Filter by Author</label>
+                <label for="sortBy" class="form-label">Sort</label>
+                <label for="toggleHighlight" class="form-label">Show Highlight</label>
                 <label for="toggleMetadata" class="form-label">Show Metadata</label>
                 <label for="toggleEdits" class="form-label">Edit Highlights</label>
                 <label for="undoButton" class="form-label"></label>
-                <label for="sortBy" class="form-label">Sort</label>
         
                 <!-- Bottom Row: Dropdown and Toggle -->
                 <div class="dropdown">
@@ -37,6 +38,23 @@
                         <input type="text" class="search-input" id="searchInput" placeholder="Search authors..." />
                         <!-- Dropdown options will be added dynamically here -->
                     </ul>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="sortBy" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort by
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="sortBy">
+                        <li><a class="dropdown-item" href="#" data-value="author">Author (Alphabetical)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="highlightCountAuthor">Author (Highlights)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="title">Title (Alphabetical)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="highlightCountTitle">Title (Highlights)</a></li>
+                    </ul>
+                </div> 
+
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="toggleHighlight" checked>
+                    <label class="form-check-label" for="toggleHighlight"></label>
                 </div>
 
                 <div class="form-check form-switch">
@@ -50,17 +68,6 @@
                 </div>
 
                 <button id="undoButton" class="btn btn-secondary">Undo Delete</button>
-
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="sortBy" data-bs-toggle="dropdown" aria-expanded="false">
-                        Sort by
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="sortBy">
-                        <li><a class="dropdown-item" href="#" data-value="author">Author</a></li>
-                        <li><a class="dropdown-item" href="#" data-value="title">Title</a></li>
-                        <li><a class="dropdown-item" href="#" data-value="highlightCount">Number of Highlights</a></li>
-                    </ul>
-                </div> 
             </div>
         </div>
         

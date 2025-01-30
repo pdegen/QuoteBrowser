@@ -17,13 +17,21 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - Edit clipping?
 - Save/overwrite MyClippings.txt
 - Filter by book
-- Sort authors/books by number of clippings
+- ~~Sort authors by number of clippings~~
+- Sort books by number of clippings
 - Search clippings
 - Select clippings
   - Display only selected clippings
 - Improve performance when editing clippings
+  - Use React to only re-render changed DOM components
 
 ## Changelog
+
+### [0.5.0] - 2025-01-30
+
+**Added**
+
+- **Sorting**: Add sort dropdown menu; sort authors by number of highlights.
 
 ### [0.4.0] - 2025-01-07
 

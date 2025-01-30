@@ -21,14 +21,45 @@ document.getElementById('toggleEdits').addEventListener('change', (event) => {
     }
 });
 
-let filteredHighlights = [];
-let authors = [];
+const SortOptions = Object.freeze({
+    AUTHOR: "author",
+    TITLE: "title",
+    HIGHLIGHT_COUNT: "highlightCount"
+});
+
+document.querySelectorAll(".dropdown-item").forEach(item => {
+    item.addEventListener("click", function () {
+        const selectedOption = this.getAttribute("data-value");
+        document.getElementById("sortBy").textContent = this.textContent; // Update button text
+        console.log("Sorting by:", selectedOption);
+
+        switch (selectedOption) {
+            case SortOptions.AUTHOR:
+                sortOption = SortOptions.AUTHOR;
+                break;
+            case SortOptions.TITLE:
+                sortOption = SortOptions.TITLE;
+                break;
+            case SortOptions.HIGHLIGHT_COUNT:
+                sortOption = SortOptions.HIGHLIGHT_COUNT;
+                break;
+            default:
+                console.warn("Unknown sorting option");
+        }
+        rerenderHighlights();
+    });
+});
+
+const highlights = new Map();
+
+let sortOption = SortOptions.AUTHOR;
 let showMetadata = false;
 let showEditButtons = false;
 let filterActive = false; // are we currently displaying filtered highlights?
 
-const highlights = new Map();
 let undoStack = [];
+let filteredHighlights = [];
+let authors = [];
 
 function clearAll() {
     highlights.clear();
@@ -163,14 +194,14 @@ function selectAuthor(event) {
     if (selectedAuthor) {
         document.getElementById('authorDropdownButton').textContent = selectedAuthor;
         if (selectedAuthor === 'All Authors') {
-            displayHighlights(highlights);
             filterActive = false;
+            displayHighlights(highlights);
         } else {
+            filterActive = true;
             filteredHighlights = new Map(
                 [...highlights].filter(([id, entry]) => entry.author === selectedAuthor)
             );
             displayHighlights(filteredHighlights);
-            filterActive = true;
         }
     }
 }
@@ -193,7 +224,64 @@ function parseClippings(content) {
     entries.forEach((entry, id) => {
         addHighlight(id, entry);
     });
-}   
+}
+
+function sortByAuthorHighlights(groupedByBook) {
+    const highlightArray = [...highlights.values()];
+    const authorHighlightCount = highlightArray.reduce((acc, entry) => {
+        acc[entry.author] = (acc[entry.author] || 0) + 1;
+        return acc;
+    }, {});
+    
+    // Sort highlights by author's total highlight count
+    highlightArray.sort((a, b) => {
+        return (authorHighlightCount[b.author] || 0) - (authorHighlightCount[a.author] || 0);
+    });
+    
+    // Now group by book AFTER sorting
+    groupedByBook = highlightArray.reduce((acc, entry) => {
+        acc[entry.bookTitle] = acc[entry.bookTitle] || [];
+        acc[entry.bookTitle].push(entry);
+        return acc;
+    }, {});
+    //groupedByBook = sortByAuthorHighlights(groupedByBook);
+    return Object.entries(groupedByBook)
+}
+
+// TO DO: refactor later to use highlight array instead of highlights map
+function sortHighlights(groupedByBook) {
+    switch (sortOption) {
+        case SortOptions.AUTHOR:
+            return groupedByBook.sort((a, b) => a[1][0].author.localeCompare(b[1][0].author));
+        case SortOptions.HIGHLIGHT_COUNT:
+
+            let highlightArray;
+            if (filterActive) {
+                highlightArray = [...filteredHighlights.values()];
+            } else {
+                highlightArray = [...highlights.values()];
+            }
+            const authorHighlightCount = highlightArray.reduce((acc, entry) => {
+                acc[entry.author] = (acc[entry.author] || 0) + 1;
+                return acc;
+            }, {});
+            
+            // Sort highlights by author's total highlight count
+            highlightArray.sort((a, b) => {
+                return (authorHighlightCount[b.author] || 0) - (authorHighlightCount[a.author] || 0);
+            });
+            
+            // Now group by book AFTER sorting
+            groupedByBook = highlightArray.reduce((acc, entry) => {
+                acc[entry.bookTitle] = acc[entry.bookTitle] || [];
+                acc[entry.bookTitle].push(entry);
+                return acc;
+            }, {});
+            return Object.entries(groupedByBook)
+        case SortOptions.TITLE:
+            return groupedByBook.sort((a, b) => a[0].localeCompare(b[0]));
+    }
+}
 
 function displayHighlights(entries) {
     const resultsDiv = document.getElementById('results');
@@ -215,7 +303,7 @@ function displayHighlights(entries) {
     }, {});
 
     groupedByBook = Object.entries(groupedByBook)
-    .sort((a, b) => a[1][0].author.localeCompare(b[1][0].author)); // Sort by the author of the first highlight in each book
+    groupedByBook = sortHighlights(groupedByBook);
 
     // Count total highlights
     const counter = document.createElement('h6');

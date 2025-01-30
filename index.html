@@ -8,7 +8,7 @@
     <link href="styles/styles.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container my-5">
+    <div class="container my-5"">
         <h1 class="text-center" style="background-color:royalblue; color: white;">Kindle Highlights Viewer</h1>
 
         <div class="mb-3 d-flex align-items-center gap-2">
@@ -20,12 +20,13 @@
         <!-- Control grid -->
         <div class="mb-3">
             <!-- Grid container -->
-            <div class="d-grid" style="grid-template-rows: auto auto; grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr; gap: 0.5rem; place-items: center;">
+            <div class="d-grid" style="grid-template-rows: auto auto; grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr; gap: 0.5rem; place-items: center;">
                 <!-- Top Row: Labels -->
                 <label for="authorDropdown" class="form-label">Filter by Author</label>
                 <label for="toggleMetadata" class="form-label">Show Metadata</label>
                 <label for="toggleEdits" class="form-label">Edit Highlights</label>
                 <label for="undoButton" class="form-label"></label>
+                <label for="sortBy" class="form-label">Sort</label>
         
                 <!-- Bottom Row: Dropdown and Toggle -->
                 <div class="dropdown">
@@ -48,7 +49,18 @@
                     <label class="form-check-label" for="toggleEdits"></label>
                 </div>
 
-                <button id="undoButton" class="btn btn-secondary">Undo Delete</button>                
+                <button id="undoButton" class="btn btn-secondary">Undo Delete</button>
+
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="sortBy" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort by
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="sortBy">
+                        <li><a class="dropdown-item" href="#" data-value="author">Author</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="title">Title</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="highlightCount">Number of Highlights</a></li>
+                    </ul>
+                </div> 
             </div>
         </div>
         
@@ -60,4 +72,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="./scripts/main.js"></script>
 </body>
+
+<footer class="footer mt-auto py-3">
+    <div class="container">
+        <span class="text-muted">Made with ❤️ by <a href="https://github.com/pdegen/QuoteBrowser" target="_blank" rel="noopener noreferrer">pdegen</a></span>
+    </div>
+</footer>
 </html>

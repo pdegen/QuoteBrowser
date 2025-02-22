@@ -22,7 +22,11 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - Select clippings
   - Display only selected clippings
 - Improve performance when editing clippings
-  - Use React to only re-render changed DOM components
+  - Use Vue to only re-render changed DOM components
+
+## Bugs
+
+- Delete doesn't work when sorted by author highlights
 
 ## Changelog
 
@@ -56,3 +60,39 @@ Browse clippings (highlights) saved from your Kindle eReader.
 **Added**
 
 - Initial release of the project.
+
+## Recommended IDE Setup
+
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+
+## Type Support for `.vue` Imports in TS
+
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vite.dev/config/).
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```

@@ -1,4 +1,37 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { init, type State } from './state.ts'
+import { uploadSample } from './fileHandler'
+
+let highlightsActive = ref(true)
+let metadataActive = ref(true)
+let editsActive = ref(false)
+
+const state = ref(init())
+
+function toggleHighlights() {
+  highlightsActive.value = !highlightsActive.value
+}
+
+function toggleMetadata() {
+  metadataActive.value = !metadataActive.value
+}
+
+function toggleEdits() {
+  editsActive.value = !editsActive.value
+}
+
+const resultsDiv = ref<HTMLElement | null>(null)
+watch(
+  state,
+  (newValue) => {
+    if (resultsDiv.value) {
+      resultsDiv.value.innerText = JSON.stringify(newValue, null, 2)
+    }
+  },
+  { deep: true },
+)
+</script>
 
 <template>
   <div class="container my-5">
@@ -11,7 +44,9 @@
         >Upload MyClippings.txt</label
       >
       <input type="file" id="fileInput" class="form-control" accept=".txt" />
-      <button id="sampleButton" class="btn btn-secondary">Sample Clippings</button>
+      <button @click="uploadSample(state)" id="sampleButton" class="btn btn-secondary">
+        Sample Clippings
+      </button>
     </div>
 
     <!-- Control grid -->
@@ -83,26 +118,37 @@
         </div>
 
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="toggleHighlight" checked />
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="toggleHighlight"
+            checked
+            @change="toggleHighlights"
+          />
           <label class="form-check-label" for="toggleHighlight"></label>
         </div>
 
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="toggleMetadata" />
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="toggleMetadata"
+            @change="toggleMetadata"
+          />
           <label class="form-check-label" for="toggleMetadata"></label>
         </div>
 
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="toggleEdits" />
+          <input class="form-check-input" type="checkbox" id="toggleEdits" @change="toggleEdits" />
           <label class="form-check-label" for="toggleEdits"></label>
         </div>
 
-        <button id="undoButton" class="btn btn-secondary">Undo Delete</button>
+        <button v-if="editsActive" id="undoButton" class="btn btn-secondary">Undo Delete</button>
       </div>
     </div>
 
     <!-- Results -->
-    <div id="results" class="border p-3">
+    <div ref="resultsDiv" class="border p-3">
       <p class="text-muted">Highlights will appear here.</p>
     </div>
   </div>

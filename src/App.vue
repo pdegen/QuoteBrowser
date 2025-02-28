@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { init, type State } from './state.ts'
-import { uploadSample } from './fileHandler'
+import { ref, watch, computed, reactive } from 'vue'
+import { init, selectAuthor, type State } from './state.ts'
+import { handleFileUpload, uploadSample } from './fileHandler'
 
-let highlightsActive = ref(true)
-let metadataActive = ref(true)
-let editsActive = ref(false)
+const highlightsActive = ref(true)
+const metadataActive = ref(true)
+const editsActive = ref(false)
 
-const state = ref(init())
+const state = reactive<State>(init())
 
 function toggleHighlights() {
   highlightsActive.value = !highlightsActive.value
@@ -21,16 +21,29 @@ function toggleEdits() {
   editsActive.value = !editsActive.value
 }
 
-const resultsDiv = ref<HTMLElement | null>(null)
-watch(
-  state,
-  (newValue) => {
-    if (resultsDiv.value) {
-      resultsDiv.value.innerText = JSON.stringify(newValue, null, 2)
-    }
-  },
-  { deep: true },
-)
+function getAuthorList(state: State) {
+  const authors = [...new Set(Array.from(state.highlightsDF.values()).map((entry) => entry.author))]
+  authors.sort()
+  return ['All Authors', ...authors]
+}
+const allAuthors = computed(() => getAuthorList(state))
+const searchQuery = ref('') // User input for filtering authors
+
+const filteredAuthors = computed(() => {
+  return allAuthors.value.filter((author) =>
+    author.toLowerCase().includes(searchQuery.value.toLowerCase()),
+  )
+})
+
+const filteredHighlights = computed(() => {
+  if (!state.filterActive) return state.highlightsDF
+  return state.highlightsDF.filter((highlight) => {
+    return (
+      !state.selectedAuthor || highlight.author === state.selectedAuthor // &&
+      //(!state.selectedBook || highlight.bookTitle === state.selectedBook)
+    )
+  })
+})
 </script>
 
 <template>
@@ -43,7 +56,13 @@ watch(
       <label for="fileInput" class="form-label mb-0" style="white-space: nowrap"
         >Upload MyClippings.txt</label
       >
-      <input type="file" id="fileInput" class="form-control" accept=".txt" />
+      <input
+        type="file"
+        id="fileInput"
+        class="form-control"
+        accept=".txt"
+        @input="(event) => handleFileUpload(event, state)"
+      />
       <button @click="uploadSample(state)" id="sampleButton" class="btn btn-secondary">
         Sample Clippings
       </button>
@@ -78,16 +97,29 @@ watch(
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            All Authors
+            {{ state.selectedAuthor }}
           </button>
           <ul class="dropdown-menu" id="authorDropdown">
             <input
+              v-model="searchQuery"
               type="text"
               class="search-input"
               id="searchInput"
               placeholder="Search authors..."
             />
             <!-- Dropdown options will be added dynamically here -->
+            <li
+              v-for="author in filteredAuthors"
+              :key="author"
+              class="dropdown-item"
+              @click="selectAuthor(author, state)"
+            >
+              {{ author }}
+            </li>
+
+            <li v-if="filteredAuthors.length === 0" class="dropdown-item text-muted">
+              No authors found
+            </li>
           </ul>
         </div>
 
@@ -150,6 +182,14 @@ watch(
     <!-- Results -->
     <div ref="resultsDiv" class="border p-3">
       <p class="text-muted">Highlights will appear here.</p>
+
+      <ul>
+        <li v-for="highlight in filteredHighlights" :key="highlight.id">
+          {{ highlight.author }}
+          <br />
+          {{ highlight.highlight }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>

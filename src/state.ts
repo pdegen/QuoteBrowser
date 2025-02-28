@@ -1,7 +1,8 @@
-import { ref, computed } from 'vue'
-
 export type State = {
   highlightsDF: HighlightDF[]
+  filterActive: boolean
+  selectedAuthor: string
+  selectedBook: string
 }
 
 export type HighlightDF = {
@@ -13,10 +14,15 @@ export type HighlightDF = {
 }
 
 export function init(): State {
-  return { highlightsDF: [] }
+  return {
+    highlightsDF: [],
+    filterActive: false,
+    selectedAuthor: 'All Authors',
+    selectedBook: 'All Books',
+  }
 }
 
-// Computed property to filter highlights by author (like filtering a DataFrame)
-// const filteredHighlights = computed((highlights: HighlightDF) =>
-//   highlights.value.filter(entry => entry.author === "Author X")
-// );
+export function selectAuthor(selectedAuthor: string, state: State) {
+  state.filterActive = selectedAuthor !== 'All Authors'
+  state.selectedAuthor = selectedAuthor
+}

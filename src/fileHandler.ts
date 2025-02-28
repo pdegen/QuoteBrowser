@@ -10,7 +10,7 @@ export function uploadSample(state: State) {
       return response.text() // Read the file as text
     })
     .then((fileContent) => {
-      handleFileContent(fileContent, state)
+      parseClippings(fileContent, state)
     })
     .catch((error) => console.error('Error uploading sample file:', error))
 }
@@ -27,7 +27,7 @@ export function handleFileUpload(event: Event, state: State) {
     reader.onload = function (e) {
       if (e.target && typeof e.target.result === 'string') {
         const fileContent = e.target.result
-        handleFileContent(fileContent, state)
+        parseClippings(fileContent, state)
       } else throw new Error('No target.')
     }
 
@@ -37,23 +37,13 @@ export function handleFileUpload(event: Event, state: State) {
   }
 }
 
-function handleFileContent(fileContent: string, state: State) {
-  parseClippings(fileContent, state)
-  //state.authors = [...new Set(Array.from(state.highlights.values()).map((entry) => entry.author))]
-  // authors.sort()
-  // authors = ['All Authors', ...authors]
-  // updateAuthorDropdown(authors)
-  // displayHighlights(highlights)
-  // document.getElementById('authorDropdownButton').textContent = 'All Authors'
-}
-
 function parseClippings(content: string, state: State) {
-  let entries = content
+  const entries = content
     .split('==========')
     .map((entry) => entry.trim())
     .filter((entry) => entry)
 
-  let entriesList = entries
+  const entriesList = entries
     .map((entry) => {
       const lines = entry.split('\n').filter((line) => line)
       if (lines.length >= 3) {

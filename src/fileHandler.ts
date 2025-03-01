@@ -1,6 +1,6 @@
-import { type State } from './state'
+import { store } from './main'
 
-export function uploadSample(state: State) {
+export function uploadSample() {
   //clearAll()
   fetch('data/SampleClippings.txt')
     .then((response) => {
@@ -10,12 +10,12 @@ export function uploadSample(state: State) {
       return response.text() // Read the file as text
     })
     .then((fileContent) => {
-      parseClippings(fileContent, state)
+      parseClippings(fileContent)
     })
     .catch((error) => console.error('Error uploading sample file:', error))
 }
 
-export function handleFileUpload(event: Event, state: State) {
+export function handleFileUpload(event: Event) {
   const target = event.target as HTMLInputElement
   if (!target.files) return
   const file = target.files[0]
@@ -27,7 +27,7 @@ export function handleFileUpload(event: Event, state: State) {
     reader.onload = function (e) {
       if (e.target && typeof e.target.result === 'string') {
         const fileContent = e.target.result
-        parseClippings(fileContent, state)
+        parseClippings(fileContent)
       } else throw new Error('No target.')
     }
 
@@ -37,7 +37,7 @@ export function handleFileUpload(event: Event, state: State) {
   }
 }
 
-function parseClippings(content: string, state: State) {
+function parseClippings(content: string) {
   const entries = content
     .split('==========')
     .map((entry) => entry.trim())
@@ -58,7 +58,7 @@ function parseClippings(content: string, state: State) {
     .filter((entry) => entry !== null)
 
   entriesList.forEach((entry, id) => {
-    state.highlightsDF.push({
+    store.highlightsDF.push({
       id: id,
       booktitle: entry.bookTitle,
       author: entry.author,

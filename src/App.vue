@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
-import { init, selectAuthor, type State } from './state.ts'
+import { ref, computed } from 'vue'
+import { selectAuthor } from './state.ts'
+import { store } from './main.ts'
 import { handleFileUpload, uploadSample } from './fileHandler'
 
 const highlightsActive = ref(true)
 const metadataActive = ref(false)
 const editsActive = ref(false)
-
-const state = reactive<State>(init())
 
 function toggleHighlights() {
   highlightsActive.value = !highlightsActive.value
@@ -21,28 +20,18 @@ function toggleEdits() {
   editsActive.value = !editsActive.value
 }
 
-function getAuthorList(state: State) {
-  const authors = [...new Set(Array.from(state.highlightsDF.values()).map((entry) => entry.author))]
+function getAuthorList() {
+  const authors = [...new Set(Array.from(store.highlightsDF.values()).map((entry) => entry.author))]
   authors.sort()
   return ['All Authors', ...authors]
 }
-const allAuthors = computed(() => getAuthorList(state))
+const allAuthors = computed(() => getAuthorList())
 const searchQuery = ref('') // User input for filtering authors
 
 const filteredAuthors = computed(() => {
   return allAuthors.value.filter((author) =>
     author.toLowerCase().includes(searchQuery.value.toLowerCase()),
   )
-})
-
-const filteredHighlights = computed(() => {
-  if (!state.filterActive) return state.highlightsDF
-  return state.highlightsDF.filter((highlight) => {
-    return (
-      !state.selectedAuthor || highlight.author === state.selectedAuthor // &&
-      //(!state.selectedBook || highlight.bookTitle === state.selectedBook)
-    )
-  })
 })
 
 type Entry = {
@@ -58,7 +47,9 @@ const groupedHighlights = computed(() => {
     { id: number; author: string; booktitle: string; entry: Entry[] }
   >()
 
-  for (const h of filteredHighlights.value) {
+  store.filteredHighlights.forEach((h) => console.log(h))
+
+  for (const h of store.filteredHighlights) {
     const key = `${h.author}::${h.booktitle}`
 
     if (!groups.has(key)) {
@@ -85,7 +76,7 @@ type UndoElement = {
 const undoStack: UndoElement[] = []
 
 function deleteHighlight(id: number) {
-  const item = filteredHighlights.value.find((h) => h.id === id)
+  const item = store.filteredHighlights.find((h) => h.id === id)
   if (item) {
     item.deleted = true
   }
@@ -95,7 +86,7 @@ function deleteHighlight(id: number) {
 function undo() {
   const lastAction = undoStack.pop()
   if (lastAction && lastAction.action === 'delete') {
-    const item = filteredHighlights.value.find((h) => h.id === lastAction.id)
+    const item = store.filteredHighlights.find((h) => h.id === lastAction.id)
     if (item) {
       item.deleted = false
     }
@@ -118,9 +109,9 @@ function undo() {
         id="fileInput"
         class="form-control"
         accept=".txt"
-        @input="(event) => handleFileUpload(event, state)"
+        @input="(event) => handleFileUpload(event)"
       />
-      <button @click="uploadSample(state)" id="sampleButton" class="btn btn-secondary">
+      <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary">
         Sample Clippings
       </button>
     </div>
@@ -154,7 +145,7 @@ function undo() {
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            {{ state.selectedAuthor }}
+            {{ store.selectedAuthor }}
           </button>
           <ul class="dropdown-menu" id="authorDropdown">
             <input
@@ -169,7 +160,7 @@ function undo() {
               v-for="author in filteredAuthors"
               :key="author"
               class="dropdown-item"
-              @click="selectAuthor(author, state)"
+              @click="selectAuthor(author)"
             >
               {{ author }}
             </li>

@@ -46,29 +46,61 @@ const filteredHighlights = computed(() => {
 })
 
 type Entry = {
+  id: number
   highlights: string
   metadata: string
+  deleted: boolean
 }
 
 const groupedHighlights = computed(() => {
-  const groups = new Map<string, { author: string; booktitle: string; entry: Entry[] }>()
+  const groups = new Map<
+    string,
+    { id: number; author: string; booktitle: string; entry: Entry[] }
+  >()
 
   for (const h of filteredHighlights.value) {
     const key = `${h.author}::${h.booktitle}`
 
     if (!groups.has(key)) {
       groups.set(key, {
+        id: h.id,
         author: h.author,
         booktitle: h.booktitle,
         entry: [],
       })
     }
 
-    groups.get(key)!.entry.push({ highlights: h.highlight, metadata: h.metadata })
+    groups
+      .get(key)!
+      .entry.push({ id: h.id, highlights: h.highlight, metadata: h.metadata, deleted: h.deleted })
   }
 
   return Array.from(groups.values())
 })
+
+type UndoElement = {
+  action: string
+  id: number
+}
+const undoStack: UndoElement[] = []
+
+function deleteHighlight(id: number) {
+  const item = filteredHighlights.value.find((h) => h.id === id)
+  if (item) {
+    item.deleted = true
+  }
+  undoStack.push({ action: 'delete', id })
+}
+
+function undo() {
+  const lastAction = undoStack.pop()
+  if (lastAction && lastAction.action === 'delete') {
+    const item = filteredHighlights.value.find((h) => h.id === lastAction.id)
+    if (item) {
+      item.deleted = false
+    }
+  }
+}
 </script>
 
 <template>
@@ -200,7 +232,9 @@ const groupedHighlights = computed(() => {
           <label class="form-check-label" for="toggleEdits"></label>
         </div>
 
-        <button v-if="editsActive" id="undoButton" class="btn btn-secondary">Undo Delete</button>
+        <button v-if="editsActive" id="undoButton" class="btn btn-secondary" @click="undo">
+          Undo Delete
+        </button>
       </div>
     </div>
 
@@ -210,16 +244,20 @@ const groupedHighlights = computed(() => {
       <h5>{{ group.author }}</h5>
       <h6>{{ group.booktitle }}</h6>
       <div v-for="(entry, index) in group.entry" :key="index">
-        <hr />
+        <div v-if="!entry.deleted">
+          <div v-if="metadataActive || highlightsActive || editsActive">
+            <hr />
+          </div>
 
-        <p v-if="metadataActive" class="text-muted">
-          {{ entry.metadata }}
-          <br />
-        </p>
+          <p v-if="metadataActive" class="text-muted">
+            {{ entry.metadata }}
+            <br />
+          </p>
 
-        <p v-if="highlightsActive">{{ index + 1 }}. {{ entry.highlights }}</p>
-        <div v-if="editsActive">
-          <button class="btn btn-danger btn-sm">Delete</button>
+          <p v-if="highlightsActive">{{ index + 1 }}. {{ entry.highlights }}</p>
+          <div v-if="editsActive">
+            <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">Delete</button>
+          </div>
         </div>
       </div>
     </div>

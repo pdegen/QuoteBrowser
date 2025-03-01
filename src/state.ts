@@ -11,6 +11,7 @@ export type HighlightDF = {
   author: string
   highlight: string
   metadata: string
+  deleted: boolean
 }
 
 export function init(): State {

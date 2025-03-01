@@ -64,6 +64,7 @@ function parseClippings(content: string, state: State) {
       author: entry.author,
       highlight: entry.highlight,
       metadata: entry.metadata,
+      deleted: false,
     })
   })
 }

@@ -60,7 +60,7 @@ function parseClippings(content: string, state: State) {
   entriesList.forEach((entry, id) => {
     state.highlightsDF.push({
       id: id,
-      bookTitle: entry.bookTitle,
+      booktitle: entry.bookTitle,
       author: entry.author,
       highlight: entry.highlight,
       metadata: entry.metadata,

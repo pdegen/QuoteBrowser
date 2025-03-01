@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, computed, reactive } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { init, selectAuthor, type State } from './state.ts'
 import { handleFileUpload, uploadSample } from './fileHandler'
 
 const highlightsActive = ref(true)
-const metadataActive = ref(true)
+const metadataActive = ref(false)
 const editsActive = ref(false)
 
 const state = reactive<State>(init())
@@ -43,6 +43,31 @@ const filteredHighlights = computed(() => {
       //(!state.selectedBook || highlight.bookTitle === state.selectedBook)
     )
   })
+})
+
+type Entry = {
+  highlights: string
+  metadata: string
+}
+
+const groupedHighlights = computed(() => {
+  const groups = new Map<string, { author: string; booktitle: string; entry: Entry[] }>()
+
+  for (const h of filteredHighlights.value) {
+    const key = `${h.author}::${h.booktitle}`
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        author: h.author,
+        booktitle: h.booktitle,
+        entry: [],
+      })
+    }
+
+    groups.get(key)!.entry.push({ highlights: h.highlight, metadata: h.metadata })
+  }
+
+  return Array.from(groups.values())
 })
 </script>
 
@@ -180,16 +205,23 @@ const filteredHighlights = computed(() => {
     </div>
 
     <!-- Results -->
-    <div ref="resultsDiv" class="border p-3">
-      <p class="text-muted">Highlights will appear here.</p>
+    <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
+      <hr />
+      <h5>{{ group.author }}</h5>
+      <h6>{{ group.booktitle }}</h6>
+      <div v-for="(entry, index) in group.entry" :key="index">
+        <hr />
 
-      <ul>
-        <li v-for="highlight in filteredHighlights" :key="highlight.id">
-          {{ highlight.author }}
+        <p v-if="metadataActive" class="text-muted">
+          {{ entry.metadata }}
           <br />
-          {{ highlight.highlight }}
-        </li>
-      </ul>
+        </p>
+
+        <p v-if="highlightsActive">{{ index + 1 }}. {{ entry.highlights }}</p>
+        <div v-if="editsActive">
+          <button class="btn btn-danger btn-sm">Delete</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

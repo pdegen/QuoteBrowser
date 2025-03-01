@@ -7,7 +7,7 @@ export type State = {
 
 export type HighlightDF = {
   id: number
-  bookTitle: string
+  booktitle: string
   author: string
   highlight: string
   metadata: string

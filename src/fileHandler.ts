@@ -2,7 +2,7 @@ import { store } from './main'
 
 export function uploadSample() {
   store.$reset()
-  fetch('data/SampleClippings.txt')
+  fetch('SampleClippings.txt')
     .then((response) => {
       if (!response.ok) {
         throw new Error('Failed to fetch sample file.')

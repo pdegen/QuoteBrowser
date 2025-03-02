@@ -278,6 +278,7 @@ function undo() {
     </div>
 
     <!-- Results -->
+    <span v-if="highlightsCountActive">Total Highlights: {{ store.totalHighlights }}</span>
     <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
       <div v-if="store.highlightsPerBook[group.booktitle] > 0">
         <hr />

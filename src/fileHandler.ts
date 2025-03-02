@@ -1,7 +1,7 @@
 import { store } from './main'
 
 export function uploadSample() {
-  //clearAll()
+  store.$reset()
   fetch('data/SampleClippings.txt')
     .then((response) => {
       if (!response.ok) {
@@ -16,6 +16,7 @@ export function uploadSample() {
 }
 
 export function handleFileUpload(event: Event) {
+  store.$reset()
   const target = event.target as HTMLInputElement
   if (!target.files) return
   const file = target.files[0]

@@ -10,6 +10,14 @@ export const useHighlightStore = defineStore('highlightStore', () => {
   const selectedAuthor = ref('All Authors')
   //const selectedBook = ref('All Books')
 
+  function $reset() {
+    highlightsDF.length = 0
+    filterActive.value = false
+    sortOption.value = SortOptions.AUTHOR
+    selectedAuthor.value = 'All Authors'
+    //selectedBook.value = 'All Books'
+  }
+
   const filteredHighlights = computed(() => {
     let results = [...highlightsDF]
 
@@ -65,6 +73,10 @@ export const useHighlightStore = defineStore('highlightStore', () => {
     )
   })
 
+  const totalHighlights = computed(() => {
+    return Object.values(highlightsPerBook.value).reduce((sum, count) => sum + count, 0)
+  })
+
   return {
     highlightsDF,
     filterActive,
@@ -73,6 +85,8 @@ export const useHighlightStore = defineStore('highlightStore', () => {
     filteredHighlights,
     highlightsPerAuthor,
     highlightsPerBook,
+    totalHighlights,
+    $reset,
   }
 })
 

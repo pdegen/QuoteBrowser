@@ -7,6 +7,11 @@ import { handleFileUpload, uploadSample } from './fileHandler'
 const highlightsActive = ref(true)
 const metadataActive = ref(false)
 const editsActive = ref(false)
+const highlightsCountActive = ref(false)
+
+function toggleHighlightsCount() {
+  highlightsCountActive.value = !highlightsCountActive.value
+}
 
 function toggleHighlights() {
   highlightsActive.value = !highlightsActive.value
@@ -20,15 +25,9 @@ function toggleEdits() {
   editsActive.value = !editsActive.value
 }
 
-function selectSortOption(option: string) {
-  store.sortOption = SortOptions[option as keyof typeof SortOptions]
-}
-// This function will be triggered on click
-const handleDropdownClick = (event: Event) => {
-  const target = event.target as HTMLElement
-  const option = target.getAttribute('data-value')
-  if (option) {
-    selectSortOption(option)
+const selectSortOption = (option: string) => {
+  if (Object.values(SortOptions).includes(option as SortOptions)) {
+    store.sortOption = option as SortOptions
   }
 }
 
@@ -135,7 +134,7 @@ function undo() {
         class="d-grid"
         style="
           grid-template-rows: auto auto;
-          grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
+          grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
           gap: 0.5rem;
           place-items: center;
         "
@@ -144,9 +143,12 @@ function undo() {
         <label for="authorDropdown" class="form-label">Filter by Author</label>
         <label for="sortBy" class="form-label">Sort</label>
         <label for="toggleHighlight" class="form-label">Show Highlight</label>
+        <label for="toggleHighlightsCount" class="form-label">Show Highlights Count</label>
         <label for="toggleMetadata" class="form-label">Show Metadata</label>
         <label for="toggleEdits" class="form-label">Edit Highlights</label>
-        <label for="undoButton" class="form-label"></label>
+        <label for="undoButton" class="form-label">
+          <span v-if="editsActive"> Undo stack: {{ undoStack.length }}</span></label
+        >
 
         <!-- Bottom Row: Dropdown and Toggle -->
         <div class="dropdown">
@@ -195,7 +197,11 @@ function undo() {
           </button>
           <ul class="dropdown-menu" aria-labelledby="sortBy">
             <li>
-              <a class="dropdown-item" href="#" data-value="author" @click="handleDropdownClick"
+              <a
+                class="dropdown-item"
+                href="#"
+                data-value="author"
+                @click="selectSortOption('author')"
                 >Author (Alphabetical)</a
               >
             </li>
@@ -204,12 +210,16 @@ function undo() {
                 class="dropdown-item"
                 href="#"
                 data-value="highlightCountAuthor"
-                @click="handleDropdownClick"
+                @click="selectSortOption('highlightCountAuthor')"
                 >Author (Highlights)</a
               >
             </li>
             <li>
-              <a class="dropdown-item" href="#" data-value="title" @click="handleDropdownClick"
+              <a
+                class="dropdown-item"
+                href="#"
+                data-value="title"
+                @click="selectSortOption('title')"
                 >Title (Alphabetical)</a
               >
             </li>
@@ -218,7 +228,7 @@ function undo() {
                 class="dropdown-item"
                 href="#"
                 data-value="highlightCountTitle"
-                @click="handleDropdownClick"
+                @click="selectSortOption('highlightCountTitle')"
                 >Title (Highlights)</a
               >
             </li>
@@ -231,9 +241,19 @@ function undo() {
             type="checkbox"
             id="toggleHighlight"
             checked
-            @change="toggleHighlights"
+            @change="toggleHighlights()"
           />
           <label class="form-check-label" for="toggleHighlight"></label>
+        </div>
+
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="toggleHighlight"
+            @change="toggleHighlightsCount()"
+          />
+          <label class="form-check-label" for="toggleHighlightsCount"></label>
         </div>
 
         <div class="form-check form-switch">
@@ -259,23 +279,37 @@ function undo() {
 
     <!-- Results -->
     <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
-      <hr />
-      <h5>{{ group.author }}</h5>
-      <h6>{{ group.booktitle }}</h6>
-      <div v-for="(entry, index) in group.entry" :key="index">
-        <div v-if="!entry.deleted">
-          <div v-if="metadataActive || highlightsActive || editsActive">
-            <hr />
-          </div>
+      <div v-if="store.highlightsPerBook[group.booktitle] > 0">
+        <hr />
+        <h5>
+          {{ group.author }}
+          <span class="text-muted" style="font-size: 1rem" v-if="highlightsCountActive"
+            >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
+          >
+        </h5>
+        <h6>
+          {{ group.booktitle }}
+          <span class="text-muted" v-if="highlightsCountActive"
+            >({{ store.highlightsPerBook[group.booktitle] }} highlights)</span
+          >
+        </h6>
+        <div v-for="(entry, index) in group.entry" :key="index">
+          <div v-if="!entry.deleted">
+            <div v-if="metadataActive || highlightsActive || editsActive">
+              <hr />
+            </div>
 
-          <p v-if="metadataActive" class="text-muted">
-            {{ entry.metadata }}
-            <br />
-          </p>
+            <p v-if="metadataActive" class="text-muted">
+              {{ entry.metadata }}
+              <br />
+            </p>
 
-          <p v-if="highlightsActive">{{ index + 1 }}. {{ entry.highlights }}</p>
-          <div v-if="editsActive">
-            <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">Delete</button>
+            <p v-if="highlightsActive">{{ index + 1 }}. {{ entry.highlights }}</p>
+            <div v-if="editsActive">
+              <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       </div>

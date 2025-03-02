@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { selectAuthor } from './state.ts'
+import { selectAuthor, SortOptions } from './state.ts'
 import { store } from './main.ts'
 import { handleFileUpload, uploadSample } from './fileHandler'
 
@@ -18,6 +18,18 @@ function toggleMetadata() {
 
 function toggleEdits() {
   editsActive.value = !editsActive.value
+}
+
+function selectSortOption(option: string) {
+  store.sortOption = SortOptions[option as keyof typeof SortOptions]
+}
+// This function will be triggered on click
+const handleDropdownClick = (event: Event) => {
+  const target = event.target as HTMLElement
+  const option = target.getAttribute('data-value')
+  if (option) {
+    selectSortOption(option)
+  }
 }
 
 function getAuthorList() {
@@ -182,15 +194,31 @@ function undo() {
             Sort by
           </button>
           <ul class="dropdown-menu" aria-labelledby="sortBy">
-            <li><a class="dropdown-item" href="#" data-value="author">Author (Alphabetical)</a></li>
             <li>
-              <a class="dropdown-item" href="#" data-value="highlightCountAuthor"
+              <a class="dropdown-item" href="#" data-value="author" @click="handleDropdownClick"
+                >Author (Alphabetical)</a
+              >
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="#"
+                data-value="highlightCountAuthor"
+                @click="handleDropdownClick"
                 >Author (Highlights)</a
               >
             </li>
-            <li><a class="dropdown-item" href="#" data-value="title">Title (Alphabetical)</a></li>
             <li>
-              <a class="dropdown-item" href="#" data-value="highlightCountTitle"
+              <a class="dropdown-item" href="#" data-value="title" @click="handleDropdownClick"
+                >Title (Alphabetical)</a
+              >
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="#"
+                data-value="highlightCountTitle"
+                @click="handleDropdownClick"
                 >Title (Highlights)</a
               >
             </li>

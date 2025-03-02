@@ -3,6 +3,15 @@ import { ref, computed } from 'vue'
 import { selectAuthor, SortOptions } from './state.ts'
 import { store } from './main.ts'
 import { handleFileUpload, uploadSample } from './fileHandler'
+import { useDark, useToggle } from '@vueuse/core'
+
+const isDark = useDark({
+  selector: 'body', //element to add attribute to
+  attribute: 'theme', // attribute name
+  valueDark: 'custom-dark', // attribute value for dark mode
+  valueLight: 'custom-light', // attribute value for light mode
+})
+const toggleDark = useToggle(isDark)
 
 const highlightsActive = ref(true)
 const metadataActive = ref(false)
@@ -97,7 +106,8 @@ function deleteHighlight(id: number) {
 function undo() {
   const lastAction = undoStack.pop()
   if (lastAction && lastAction.action === 'delete') {
-    const item = store.filteredHighlights.find((h) => h.id === lastAction.id)
+    // must use highlightsDF; else, when deleting and changing to different author and undoing, won't work
+    const item = store.highlightsDF.find((h) => h.id === lastAction.id)
     if (item) {
       item.deleted = false
     }
@@ -107,9 +117,7 @@ function undo() {
 
 <template>
   <div class="container my-5">
-    <h1 class="text-center" style="background-color: royalblue; color: white">
-      Kindle Highlights Viewer
-    </h1>
+    <h1 class="text-center" id="header">Kindle Highlights Viewer</h1>
 
     <div class="mb-3 d-flex align-items-center gap-2">
       <label for="fileInput" class="form-label mb-0" style="white-space: nowrap"
@@ -134,7 +142,7 @@ function undo() {
         class="d-grid"
         style="
           grid-template-rows: auto auto;
-          grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
+          grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
           gap: 0.5rem;
           place-items: center;
         "
@@ -143,8 +151,9 @@ function undo() {
         <label for="authorDropdown" class="form-label">Filter by Author</label>
         <label for="sortBy" class="form-label">Sort</label>
         <label for="toggleHighlight" class="form-label">Show Highlight</label>
-        <label for="toggleHighlightsCount" class="form-label">Show Highlights Count</label>
+        <label for="toggleHighlightsCount" class="form-label">Show Count</label>
         <label for="toggleMetadata" class="form-label">Show Metadata</label>
+        <label for="toggleTheme" class="form-label">Dark Mode</label>
         <label for="toggleEdits" class="form-label">Edit Highlights</label>
         <label for="undoButton" class="form-label">
           <span v-if="editsActive"> Undo stack: {{ undoStack.length }}</span></label
@@ -179,7 +188,7 @@ function undo() {
               {{ author }}
             </li>
 
-            <li v-if="filteredAuthors.length === 0" class="dropdown-item text-muted">
+            <li v-if="filteredAuthors.length === 0" class="dropdown-item text-muted-custom">
               No authors found
             </li>
           </ul>
@@ -261,9 +270,20 @@ function undo() {
             class="form-check-input"
             type="checkbox"
             id="toggleMetadata"
-            @change="toggleMetadata"
+            @change="toggleMetadata()"
           />
           <label class="form-check-label" for="toggleMetadata"></label>
+        </div>
+
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="toggleTheme"
+            checked
+            @change="toggleDark()"
+          />
+          <label class="form-check-label" for="toggleTheme"></label>
         </div>
 
         <div class="form-check form-switch">
@@ -279,37 +299,39 @@ function undo() {
 
     <!-- Results -->
     <span v-if="highlightsCountActive">Total Highlights: {{ store.totalHighlights }}</span>
-    <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
-      <div v-if="store.highlightsPerBook[group.booktitle] > 0">
-        <hr />
-        <h5>
-          {{ group.author }}
-          <span class="text-muted" style="font-size: 1rem" v-if="highlightsCountActive"
-            >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
-          >
-        </h5>
-        <h6>
-          {{ group.booktitle }}
-          <span class="text-muted" v-if="highlightsCountActive"
-            >({{ store.highlightsPerBook[group.booktitle] }} highlights)</span
-          >
-        </h6>
-        <div v-for="(entry, index) in group.entry" :key="index">
-          <div v-if="!entry.deleted">
-            <div v-if="metadataActive || highlightsActive || editsActive">
-              <hr />
-            </div>
+    <div style="overflow-y: auto; height: 900px">
+      <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
+        <div v-if="store.highlightsPerBook[group.booktitle] > 0">
+          <hr />
+          <h5>
+            {{ group.author }}
+            <span class="text-muted-custom" style="font-size: 1rem" v-if="highlightsCountActive"
+              >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
+            >
+          </h5>
+          <h6>
+            {{ group.booktitle }}
+            <span class="text-muted-custom" v-if="highlightsCountActive"
+              >({{ store.highlightsPerBook[group.booktitle] }} highlights)</span
+            >
+          </h6>
+          <div v-for="(entry, index) in group.entry" :key="index">
+            <div v-if="!entry.deleted">
+              <div v-if="metadataActive || highlightsActive || editsActive">
+                <hr />
+              </div>
 
-            <p v-if="metadataActive" class="text-muted">
-              {{ entry.metadata }}
-              <br />
-            </p>
+              <p v-if="metadataActive" class="text-muted-custom">
+                {{ entry.metadata }}
+                <br />
+              </p>
 
-            <p v-if="highlightsActive">{{ index + 1 }}. {{ entry.highlights }}</p>
-            <div v-if="editsActive">
-              <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">
-                Delete
-              </button>
+              <p v-if="highlightsActive">{{ index + 1 }}. {{ entry.highlights }}</p>
+              <div v-if="editsActive">
+                <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -318,4 +340,26 @@ function undo() {
   </div>
 </template>
 
-<style scoped></style>
+<style>
+[theme='custom-light'] {
+  #header {
+    background-color: royalblue;
+    color: #fff;
+  }
+  .text-muted-custom {
+    color: grey;
+  }
+}
+[theme='custom-dark'] {
+  background: #16171d;
+  color: #fff;
+
+  #header {
+    background-color: crimson;
+  }
+
+  .text-muted-custom {
+    color: silver;
+  }
+}
+</style>

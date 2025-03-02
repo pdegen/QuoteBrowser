@@ -21,43 +21,31 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - Search clippings
 - Select clippings
   - Display only selected clippings
-- Improve performance when editing clippings
-  - Use Vue to only re-render changed DOM components
-
-## Bugs
-
-- Delete doesn't work when sorted by author highlights
 
 ## Changelog
 
-### [0.5.0] - 2025-01-30
+### [1.0.0] - 2025-03-02
 
-**Added**
+- **Rebuild**: Complete rebuild in Vue.js
+
+### [0.5.0] - 2025-01-30
 
 - **Sorting**: Add sort dropdown menu; sort authors/titles by number of highlights.
 
 ### [0.4.0] - 2025-01-07
-
-**Added**
 
 - **Sample Clippings**: Add button to upload sample clippings file.
 - **Highlights Counter**: Count total number of highlights displayed.
 
 ### [0.3.0] - 2025-01-05
 
-**Added**
-
 - **Delete**: Add delete and undo buttons. Note that this does not overwrite the original file.
 
 ### [0.2.0] - 2025-01-04
 
-**Added**
-
 - **Metadata Toggle**: Toggle the visibility of the clipping's page, location, date, and time.
 
 ### [0.1.0] - 2025-01-01
-
-**Added**
 
 - Initial release of the project.
 

@@ -1,27 +1,23 @@
-body {
-    background-color: white;
-}
-
 #fileInput {
-    flex-grow: 1; /* Ensures the input takes up available space */
+  flex-grow: 1; /* Ensures the input takes up available space */
 }
 
 #sampleButton {
-    white-space: nowrap; /* Prevents text wrapping */
+  white-space: nowrap; /* Prevents text wrapping */
 }
 
 #results {
-    max-height: 800px;
-    overflow-y: auto;
+  max-height: 800px;
+  overflow-y: auto;
 }
 
 .dropdown-menu {
-    max-height: 200px;
-    overflow-y: auto;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .search-input {
-    width: 100%;
-    padding: 0.5rem;
-    margin: 0.25rem;
+  width: 100%;
+  padding: 0.5rem;
+  margin: 0.25rem;
 }

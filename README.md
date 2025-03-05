@@ -19,10 +19,14 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - Filter by book
 - ~~Sort authors/titles by number of clippings~~
 - Search clippings
-- Select clippings
-  - Display only selected clippings
+- ~~Select clippings~~
+- Improve selection (highlight selected, deselect all)
 
 ## Changelog
+
+### [1.1.0] - 2025-03-05
+
+- **Selection**: Filter selected highlights
 
 ### [1.0.0] - 2025-03-02
 

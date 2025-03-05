@@ -1,16 +1,23 @@
 import { defineStore } from 'pinia'
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, type Ref } from 'vue'
 import { store } from './main'
+
+type UndoElement = {
+  action: string
+  id: number
+}
 
 export const useHighlightStore = defineStore('highlightStore', () => {
   const highlightsDF = reactive<HighlightDF[]>([])
   const filterActive = ref(false)
   const sortOption = ref(SortOptions.AUTHOR)
+  const undoStack: Ref<UndoElement[]> = ref([])
 
   const selectedAuthor = ref('All Authors')
   //const selectedBook = ref('All Books')
 
   function $reset() {
+    undoStack.value = []
     highlightsDF.length = 0
     filterActive.value = false
     sortOption.value = SortOptions.AUTHOR
@@ -86,6 +93,7 @@ export const useHighlightStore = defineStore('highlightStore', () => {
     highlightsPerAuthor,
     highlightsPerBook,
     totalHighlights,
+    undoStack,
     $reset,
   }
 })
@@ -97,6 +105,7 @@ export type HighlightDF = {
   highlight: string
   metadata: string
   deleted: boolean
+  selected: boolean
 }
 
 export function selectAuthor(selectedAuthor: string) {

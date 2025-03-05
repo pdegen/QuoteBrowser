@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, type Ref } from 'vue'
 import { selectAuthor, SortOptions } from './state.ts'
 import { store } from './main.ts'
 import { handleFileUpload, uploadSample } from './fileHandler'
@@ -16,7 +16,9 @@ const toggleDark = useToggle(isDark)
 const highlightsActive = ref(true)
 const metadataActive = ref(false)
 const editsActive = ref(false)
+const selectedActive = ref(false)
 const highlightsCountActive = ref(false)
+const hoveredId: Ref<number | null> = ref(null)
 
 function toggleHighlightsCount() {
   highlightsCountActive.value = !highlightsCountActive.value
@@ -32,6 +34,10 @@ function toggleMetadata() {
 
 function toggleEdits() {
   editsActive.value = !editsActive.value
+}
+
+function toggleSelection() {
+  selectedActive.value = !selectedActive.value
 }
 
 const selectSortOption = (option: string) => {
@@ -59,15 +65,16 @@ type Entry = {
   highlights: string
   metadata: string
   deleted: boolean
+  selected: boolean
 }
 
 const groupedHighlights = computed(() => {
   const groups = new Map<
     string,
-    { id: number; author: string; booktitle: string; entry: Entry[] }
+    { id: number; author: string; booktitle: string; entry: Entry[]; anySelected: boolean }
   >()
 
-  store.filteredHighlights.forEach((h) => console.log(h))
+  //store.filteredHighlights.forEach((h) => console.log(h))
 
   for (const h of store.filteredHighlights) {
     const key = `${h.author}::${h.booktitle}`
@@ -78,39 +85,53 @@ const groupedHighlights = computed(() => {
         author: h.author,
         booktitle: h.booktitle,
         entry: [],
+        anySelected: false,
       })
     }
 
-    groups
-      .get(key)!
-      .entry.push({ id: h.id, highlights: h.highlight, metadata: h.metadata, deleted: h.deleted })
+    if (!groups.has(key)) return
+    if (!groups) return
+
+    groups.get(key)!.entry.push({
+      id: h.id,
+      highlights: h.highlight,
+      metadata: h.metadata,
+      deleted: h.deleted,
+      selected: h.selected,
+    })
+
+    const group = groups.get(key)
+    if (group) {
+      group.anySelected = group.anySelected || h.selected
+    }
   }
 
   return Array.from(groups.values())
 })
-
-type UndoElement = {
-  action: string
-  id: number
-}
-const undoStack: UndoElement[] = []
 
 function deleteHighlight(id: number) {
   const item = store.filteredHighlights.find((h) => h.id === id)
   if (item) {
     item.deleted = true
   }
-  undoStack.push({ action: 'delete', id })
+  store.undoStack.push({ action: 'delete', id })
 }
 
 function undo() {
-  const lastAction = undoStack.pop()
+  const lastAction = store.undoStack.pop()
   if (lastAction && lastAction.action === 'delete') {
     // must use highlightsDF; else, when deleting and changing to different author and undoing, won't work
     const item = store.highlightsDF.find((h) => h.id === lastAction.id)
     if (item) {
       item.deleted = false
     }
+  }
+}
+
+function selectHighlight(id: number) {
+  const highlight = store.filteredHighlights.find((h) => h.id === id)
+  if (highlight) {
+    highlight.selected = !highlight.selected
   }
 }
 </script>
@@ -142,7 +163,7 @@ function undo() {
         class="d-grid"
         style="
           grid-template-rows: auto auto;
-          grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
+          grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
           gap: 0.5rem;
           place-items: center;
         "
@@ -150,13 +171,14 @@ function undo() {
         <!-- Top Row: Labels -->
         <label for="authorDropdown" class="form-label">Filter by Author</label>
         <label for="sortBy" class="form-label">Sort</label>
-        <label for="toggleHighlight" class="form-label">Show Highlight</label>
-        <label for="toggleHighlightsCount" class="form-label">Show Count</label>
-        <label for="toggleMetadata" class="form-label">Show Metadata</label>
+        <label for="toggleHighlight" class="form-label">Highlights</label>
+        <label for="toggleHighlightsCount" class="form-label">Counts</label>
+        <label for="toggleMetadata" class="form-label">Metadata</label>
+        <label for="toggleSelection" class="form-label">Selection</label>
         <label for="toggleTheme" class="form-label">Dark Mode</label>
-        <label for="toggleEdits" class="form-label">Edit Highlights</label>
+        <label for="toggleEdits" class="form-label">Edit</label>
         <label for="undoButton" class="form-label">
-          <span v-if="editsActive"> Undo stack: {{ undoStack.length }}</span></label
+          <span v-if="editsActive"> Undo stack: {{ store.undoStack.length }}</span></label
         >
 
         <!-- Bottom Row: Dropdown and Toggle -->
@@ -279,6 +301,16 @@ function undo() {
           <input
             class="form-check-input"
             type="checkbox"
+            id="toggleSelection"
+            @change="toggleSelection()"
+          />
+          <label class="form-check-label" for="toggleSelection"></label>
+        </div>
+
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
             id="toggleTheme"
             checked
             @change="toggleDark()"
@@ -301,21 +333,31 @@ function undo() {
     <span v-if="highlightsCountActive">Total Highlights: {{ store.totalHighlights }}</span>
     <div style="overflow-y: auto; height: 900px">
       <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
-        <div v-if="store.highlightsPerBook[group.booktitle] > 0">
+        <div
+          v-if="
+            store.highlightsPerBook[group.booktitle] > 0 && (!selectedActive || group.anySelected)
+          "
+        >
           <hr />
           <h5>
-            {{ group.author }}
-            <span class="text-muted-custom" style="font-size: 1rem" v-if="highlightsCountActive"
-              >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
-            >
-          </h5>
-          <h6>
             {{ group.booktitle }}
             <span class="text-muted-custom" v-if="highlightsCountActive"
               >({{ store.highlightsPerBook[group.booktitle] }} highlights)</span
             >
+          </h5>
+          <h6>
+            {{ group.author }}
+            <span class="text-muted-custom" style="font-size: 1rem" v-if="highlightsCountActive"
+              >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
+            >
           </h6>
-          <div v-for="(entry, index) in group.entry" :key="index">
+          <div
+            v-for="(entry, index) in group.entry"
+            :key="index"
+            @mouseenter="hoveredId = entry.id"
+            @mouseleave="hoveredId = null"
+            class="hover-container"
+          >
             <div v-if="!entry.deleted">
               <div v-if="metadataActive || highlightsActive || editsActive">
                 <hr />
@@ -326,11 +368,22 @@ function undo() {
                 <br />
               </p>
 
-              <p v-if="highlightsActive">{{ index + 1 }}. {{ entry.highlights }}</p>
-              <div v-if="editsActive">
-                <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">
-                  Delete
-                </button>
+              <div v-if="highlightsActive && (!selectedActive || entry.selected)">
+                <p>
+                  {{ index + 1 }}. {{ entry.highlights }}
+                  <input
+                    v-if="hoveredId === entry.id"
+                    type="checkbox"
+                    class="checkbox"
+                    :checked="entry.selected"
+                    @change="selectHighlight(entry.id)"
+                  />
+                </p>
+                <div v-if="editsActive">
+                  <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -340,26 +393,13 @@ function undo() {
   </div>
 </template>
 
-<style>
-[theme='custom-light'] {
-  #header {
-    background-color: royalblue;
-    color: #fff;
-  }
-  .text-muted-custom {
-    color: grey;
-  }
+<style scoped>
+.hover-container {
+  display: inline-block;
+  padding: 5px;
 }
-[theme='custom-dark'] {
-  background: #16171d;
-  color: #fff;
 
-  #header {
-    background-color: crimson;
-  }
-
-  .text-muted-custom {
-    color: silver;
-  }
+.checkbox {
+  margin-left: 10px;
 }
 </style>

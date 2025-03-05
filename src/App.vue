@@ -134,6 +134,33 @@ function selectHighlight(id: number) {
     highlight.selected = !highlight.selected
   }
 }
+
+const showTooltip = ref(false)
+const copyHighlight = async (id: number) => {
+  const text = store.filteredHighlights.find((h) => h.id === id)?.highlight
+  if (!text) return
+  try {
+    await navigator.clipboard.writeText(text).then(() => {
+      showTooltip.value = true
+      setTimeout(() => {
+        showTooltip.value = false
+      }, 1000)
+    })
+  } catch (err) {
+    console.error('Failed to copy: ', err)
+  }
+}
+
+const shareToBluesky = (id: number) => {
+  const entry = store.filteredHighlights.find((h) => h.id === id)
+  if (!entry) return
+  const text = `"${entry.highlight}" - ${entry.author}, ${entry.booktitle}`
+  if (!text) return
+  //console.log(text)
+  const encodedText = encodeURIComponent(text) // URL-escaping
+  const url = `https://bsky.app/intent/compose?text=${encodedText}`
+  window.open(url, '_blank') // Open in a new tab
+}
 </script>
 
 <template>
@@ -178,7 +205,7 @@ function selectHighlight(id: number) {
           >Selection ({{ store.totalSelected }})</label
         >
         <label for="toggleTheme" class="form-label">Dark Mode</label>
-        <label for="toggleEdits" class="form-label">Edit</label>
+        <label for="toggleEdits" class="form-label">Options</label>
         <label for="undoButton" class="form-label">
           <span v-if="editsActive"> Undo stack: {{ store.undoStack.length }}</span></label
         >
@@ -380,12 +407,40 @@ function selectHighlight(id: number) {
 
                 <div v-if="highlightsActive && (!selectedActive || entry.selected)">
                   <p style="margin: 0px">{{ index + 1 }}. {{ entry.highlights }}</p>
-                  <div v-if="editsActive">
-                    <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">
-                      Delete
-                    </button>
-                  </div>
                 </div>
+              </div>
+              <div v-if="editsActive" style="display: flex; gap: 10px">
+                <button
+                  class="btn btn-primary btn-sm"
+                  @click="shareToBluesky(entry.id)"
+                  style="margin-top: 10px"
+                >
+                  Bluesky
+                  <font-awesome-icon :icon="['fab', 'bluesky']" />
+                </button>
+
+                <div class="tooltip-container">
+                  <button
+                    class="btn btn-success btn-sm"
+                    @mouseenter="hoveredId = entry.id"
+                    @mouseleave="hoveredId = null"
+                    @click="copyHighlight(entry.id)"
+                    style="margin-top: 10px"
+                  >
+                    Copy
+                  </button>
+                  <span v-if="showTooltip && hoveredId === entry.id" class="tooltip"
+                    >Copied to clipboard!</span
+                  >
+                </div>
+
+                <button
+                  class="btn btn-danger btn-sm"
+                  @click="deleteHighlight(entry.id)"
+                  style="margin-top: 10px"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -395,4 +450,26 @@ function selectHighlight(id: number) {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  overflow: visible; /* Ensure tooltip is visible outside */
+}
+
+.tooltip {
+  position: absolute;
+  top: -35px; /* Adjust so it appears above the button */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0.9;
+  z-index: 999; /* Ensure it's above other elements */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+</style>

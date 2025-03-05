@@ -85,7 +85,7 @@ export const useHighlightStore = defineStore('highlightStore', () => {
   })
 
   const totalSelected = computed(() => {
-    return Object.values(filteredHighlights.value).filter((h) => h.selected).length
+    return Object.values(filteredHighlights.value).filter((h) => h.selected && !h.deleted).length
   })
 
   return {

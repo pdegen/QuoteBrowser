@@ -21,3 +21,25 @@
   padding: 0.5rem;
   margin: 0.25rem;
 }
+
+[theme='custom-light'] {
+  #header {
+    background-color: royalblue;
+    color: #fff;
+  }
+  .text-muted-custom {
+    color: grey;
+  }
+}
+[theme='custom-dark'] {
+  background: #16171d;
+  color: #fff;
+
+  #header {
+    background-color: crimson;
+  }
+
+  .text-muted-custom {
+    color: silver;
+  }
+}

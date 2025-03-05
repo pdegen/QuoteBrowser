@@ -66,6 +66,7 @@ function parseClippings(content: string) {
       highlight: entry.highlight,
       metadata: entry.metadata,
       deleted: false,
+      selected: false,
     })
   })
 }

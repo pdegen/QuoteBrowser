@@ -84,6 +84,10 @@ export const useHighlightStore = defineStore('highlightStore', () => {
     return Object.values(highlightsPerBook.value).reduce((sum, count) => sum + count, 0)
   })
 
+  const totalSelected = computed(() => {
+    return Object.values(filteredHighlights.value).filter((h) => h.selected).length
+  })
+
   return {
     highlightsDF,
     filterActive,
@@ -94,6 +98,7 @@ export const useHighlightStore = defineStore('highlightStore', () => {
     highlightsPerBook,
     totalHighlights,
     undoStack,
+    totalSelected,
     $reset,
   }
 })

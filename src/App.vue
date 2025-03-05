@@ -174,7 +174,9 @@ function selectHighlight(id: number) {
         <label for="toggleHighlight" class="form-label">Highlights</label>
         <label for="toggleHighlightsCount" class="form-label">Counts</label>
         <label for="toggleMetadata" class="form-label">Metadata</label>
-        <label for="toggleSelection" class="form-label">Selection</label>
+        <label for="toggleSelection" class="form-label"
+          >Selection ({{ store.totalSelected }})</label
+        >
         <label for="toggleTheme" class="form-label">Dark Mode</label>
         <label for="toggleEdits" class="form-label">Edit</label>
         <label for="undoButton" class="form-label">
@@ -351,38 +353,38 @@ function selectHighlight(id: number) {
               >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
             >
           </h6>
-          <div
-            v-for="(entry, index) in group.entry"
-            :key="index"
-            @mouseenter="hoveredId = entry.id"
-            @mouseleave="hoveredId = null"
-            class="hover-container"
-          >
+          <div v-for="(entry, index) in group.entry" :key="index">
             <div v-if="!entry.deleted">
               <div v-if="metadataActive || highlightsActive || editsActive">
                 <hr />
               </div>
 
-              <p v-if="metadataActive" class="text-muted-custom">
-                {{ entry.metadata }}
-                <br />
-              </p>
-
-              <div v-if="highlightsActive && (!selectedActive || entry.selected)">
-                <p>
-                  {{ index + 1 }}. {{ entry.highlights }}
-                  <input
-                    v-if="hoveredId === entry.id"
-                    type="checkbox"
-                    class="checkbox"
-                    :checked="entry.selected"
-                    @change="selectHighlight(entry.id)"
-                  />
+              <div
+                @mouseenter="hoveredId = entry.id"
+                @mouseleave="hoveredId = null"
+                @click="selectHighlight(entry.id)"
+                class="hover-container"
+                :style="{
+                  color: entry.selected ? 'var(--selected-color)' : 'inherit',
+                  backgroundColor:
+                    hoveredId === entry.id ? 'var(--hover-background-color)' : 'inherit',
+                }"
+              >
+                <p
+                  v-if="metadataActive && (!selectedActive || entry.selected)"
+                  class="text-muted-custom"
+                >
+                  {{ entry.metadata }}
+                  <br />
                 </p>
-                <div v-if="editsActive">
-                  <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">
-                    Delete
-                  </button>
+
+                <div v-if="highlightsActive && (!selectedActive || entry.selected)">
+                  <p style="margin: 0px">{{ index + 1 }}. {{ entry.highlights }}</p>
+                  <div v-if="editsActive">
+                    <button class="btn btn-danger btn-sm" @click="deleteHighlight(entry.id)">
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -393,13 +395,4 @@ function selectHighlight(id: number) {
   </div>
 </template>
 
-<style scoped>
-.hover-container {
-  display: inline-block;
-  padding: 5px;
-}
-
-.checkbox {
-  margin-left: 10px;
-}
-</style>
+<style scoped></style>

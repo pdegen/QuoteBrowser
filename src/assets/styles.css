@@ -30,6 +30,14 @@
   .text-muted-custom {
     color: grey;
   }
+  .hover-container {
+    display: inline-block;
+    padding: 0px;
+    background-color: #fff;
+    color: black;
+    --hover-background-color: Gainsboro;
+    --selected-color: green;
+  }
 }
 [theme='custom-dark'] {
   background: #16171d;
@@ -41,5 +49,14 @@
 
   .text-muted-custom {
     color: silver;
+  }
+
+  .hover-container {
+    display: inline-block;
+    padding: 0px;
+    background-color: #16171d;
+    color: white;
+    --hover-background-color: rgb(48, 48, 48);
+    --selected-color: lightgreen;
   }
 }

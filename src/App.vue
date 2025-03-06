@@ -62,7 +62,7 @@ const filteredAuthors = computed(() => {
 
 type Entry = {
   id: number
-  highlights: string
+  highlight: string
   metadata: string
   deleted: boolean
   selected: boolean
@@ -94,7 +94,7 @@ const groupedHighlights = computed(() => {
 
     groups.get(key)!.entry.push({
       id: h.id,
-      highlights: h.highlight,
+      highlight: h.highlight,
       metadata: h.metadata,
       deleted: h.deleted,
       selected: h.selected,
@@ -207,7 +207,7 @@ const shareToBluesky = (id: number) => {
         <label for="toggleTheme" class="form-label">Dark Mode</label>
         <label for="toggleEdits" class="form-label">Options</label>
         <label for="undoButton" class="form-label">
-          <span v-if="editsActive"> Undo stack: {{ store.undoStack.length }}</span></label
+          <span v-if="editsActive"> Undo Stack: {{ store.undoStack.length }}</span></label
         >
 
         <!-- Bottom Row: Dropdown and Toggle -->
@@ -359,7 +359,9 @@ const shareToBluesky = (id: number) => {
     </div>
 
     <!-- Results -->
-    <span v-if="highlightsCountActive">Total Highlights: {{ store.totalHighlights }}</span>
+    <h5 v-if="highlightsCountActive">Total Highlights: {{ store.totalHighlights }}</h5>
+    <!--Subtract 1 for 'All Authors'-->
+    <h6 v-if="highlightsCountActive">Total Authors: {{ allAuthors.length - 1 }}</h6>
     <div style="overflow-y: auto; height: 900px">
       <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
         <div
@@ -381,7 +383,7 @@ const shareToBluesky = (id: number) => {
             >
           </h6>
           <div v-for="(entry, index) in group.entry" :key="index">
-            <div v-if="!entry.deleted">
+            <div v-if="!entry.deleted && (!selectedActive || entry.selected)">
               <div v-if="metadataActive || highlightsActive || editsActive">
                 <hr />
               </div>
@@ -397,16 +399,13 @@ const shareToBluesky = (id: number) => {
                     hoveredId === entry.id ? 'var(--hover-background-color)' : 'inherit',
                 }"
               >
-                <p
-                  v-if="metadataActive && (!selectedActive || entry.selected)"
-                  class="text-muted-custom"
-                >
-                  {{ entry.metadata }}
+                <p v-if="metadataActive" class="text-muted-custom">
+                  {{ entry.metadata }} | Characters: {{ entry.highlight.length }}
                   <br />
                 </p>
 
-                <div v-if="highlightsActive && (!selectedActive || entry.selected)">
-                  <p style="margin: 0px">{{ index + 1 }}. {{ entry.highlights }}</p>
+                <div v-if="highlightsActive">
+                  <p style="margin: 0px">{{ index + 1 }}. {{ entry.highlight }}</p>
                 </div>
               </div>
               <div v-if="editsActive" style="display: flex; gap: 10px">

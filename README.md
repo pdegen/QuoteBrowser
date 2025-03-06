@@ -12,7 +12,7 @@ Browse clippings (highlights) saved from your Kindle eReader.
 ## To do
 
 - ~~Toggle displaying location and date~~
-- Share to Bluesky
+- ~~Share to Bluesky~~
 - ~~Delete clipping~~
 - Edit clipping?
 - Save/overwrite MyClippings.txt
@@ -20,13 +20,17 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - ~~Sort authors/titles by number of clippings~~
 - Search clippings
 - ~~Select clippings~~
-- Improve selection (highlight selected, deselect all)
+- Select/deselect all/author/book
+- Ensure compatibility if MyClippings.txt has different formats
+- Better mobile support
 
 ## Changelog
 
-### [1.1.0] - 2025-03-05
+### [1.1.0] - 2025-03-06
 
 - **Selection**: Filter selected highlights
+- **Copy**: Copy highlight to clipboard
+- **Share**: Share highlight to Bluesky
 
 ### [1.0.0] - 2025-03-02
 

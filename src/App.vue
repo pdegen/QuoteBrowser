@@ -17,12 +17,7 @@ const highlightsActive = ref(true)
 const metadataActive = ref(false)
 const editsActive = ref(false)
 const selectedActive = ref(false)
-const highlightsCountActive = ref(false)
 const hoveredId: Ref<number | null> = ref(null)
-
-function toggleHighlightsCount() {
-  highlightsCountActive.value = !highlightsCountActive.value
-}
 
 function toggleHighlights() {
   highlightsActive.value = !highlightsActive.value
@@ -164,53 +159,33 @@ const shareToBluesky = (id: number) => {
 </script>
 
 <template>
+  <!-- Upload -->
   <div class="container my-5">
     <h1 class="text-center" id="header">Kindle Highlights Viewer</h1>
 
-    <div class="mb-3 d-flex align-items-center gap-2">
-      <label for="fileInput" class="form-label mb-0" style="white-space: nowrap"
+    <div class="row d-flex align-items-center gap-2">
+      <label for="fileInput" class="form-label col-md-auto" style="white-space: nowrap"
         >Upload MyClippings.txt</label
       >
       <input
         type="file"
         id="fileInput"
-        class="form-control"
+        class="form-control col"
         accept=".txt"
         @input="(event) => handleFileUpload(event)"
       />
-      <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary">
+      <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary col-md-auto">
         Sample Clippings
       </button>
     </div>
+  </div>
 
-    <!-- Control grid -->
-    <div class="mb-3">
-      <!-- Grid container -->
-      <div
-        class="d-grid"
-        style="
-          grid-template-rows: auto auto;
-          grid-template-columns: 0fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
-          gap: 0.5rem;
-          place-items: center;
-        "
-      >
-        <!-- Top Row: Labels -->
+  <!-- Options -->
+  <div class="container my-5">
+    <div class="row d-flex align-items-center">
+      <!-- Author dropdown -->
+      <div class="col-6 col-md d-flex flex-column align-items-center">
         <label for="authorDropdown" class="form-label">Filter by Author</label>
-        <label for="sortBy" class="form-label">Sort</label>
-        <label for="toggleHighlight" class="form-label">Highlights</label>
-        <label for="toggleHighlightsCount" class="form-label">Counts</label>
-        <label for="toggleMetadata" class="form-label">Metadata</label>
-        <label for="toggleSelection" class="form-label"
-          >Selection ({{ store.totalSelected }})</label
-        >
-        <label for="toggleTheme" class="form-label">Dark Mode</label>
-        <label for="toggleEdits" class="form-label">Options</label>
-        <label for="undoButton" class="form-label">
-          <span v-if="editsActive"> Undo Stack: {{ store.undoStack.length }}</span></label
-        >
-
-        <!-- Bottom Row: Dropdown and Toggle -->
         <div class="dropdown">
           <button
             class="btn btn-secondary dropdown-toggle"
@@ -244,7 +219,11 @@ const shareToBluesky = (id: number) => {
             </li>
           </ul>
         </div>
+      </div>
 
+      <!-- Sort -->
+      <div class="col-6 col-md d-flex flex-column align-items-center">
+        <label for="sortBy" class="form-label">Sort</label>
         <div class="dropdown">
           <button
             class="btn btn-secondary dropdown-toggle"
@@ -255,7 +234,7 @@ const shareToBluesky = (id: number) => {
           >
             Sort by
           </button>
-          <ul class="dropdown-menu" aria-labelledby="sortBy">
+          <ul class="dropdown-menu col" aria-labelledby="sortBy">
             <li>
               <a
                 class="dropdown-item"
@@ -294,7 +273,11 @@ const shareToBluesky = (id: number) => {
             </li>
           </ul>
         </div>
+      </div>
 
+      <!-- Highlights -->
+      <div class="col-6 col-md d-flex flex-column align-items-center">
+        <label for="toggleHighlight" class="form-label">Highlights</label>
         <div class="form-check form-switch">
           <input
             class="form-check-input"
@@ -305,17 +288,11 @@ const shareToBluesky = (id: number) => {
           />
           <label class="form-check-label" for="toggleHighlight"></label>
         </div>
+      </div>
 
-        <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="toggleHighlight"
-            @change="toggleHighlightsCount()"
-          />
-          <label class="form-check-label" for="toggleHighlightsCount"></label>
-        </div>
-
+      <!-- Metadata -->
+      <div class="col-6 col-md d-flex flex-column align-items-center">
+        <label for="toggleMetadata" class="form-label">Metadata</label>
         <div class="form-check form-switch">
           <input
             class="form-check-input"
@@ -325,7 +302,13 @@ const shareToBluesky = (id: number) => {
           />
           <label class="form-check-label" for="toggleMetadata"></label>
         </div>
+      </div>
 
+      <!-- Selection -->
+      <div class="col-6 col-md d-flex flex-column align-items-center">
+        <label for="toggleSelection" class="form-label"
+          >Selection ({{ store.totalSelected }})</label
+        >
         <div class="form-check form-switch">
           <input
             class="form-check-input"
@@ -335,7 +318,12 @@ const shareToBluesky = (id: number) => {
           />
           <label class="form-check-label" for="toggleSelection"></label>
         </div>
+      </div>
 
+      <!-- Dark mode -->
+
+      <div class="col-6 col-md d-flex flex-column align-items-center">
+        <label for="toggleTheme" class="form-label">Dark Mode</label>
         <div class="form-check form-switch">
           <input
             class="form-check-input"
@@ -346,101 +334,110 @@ const shareToBluesky = (id: number) => {
           />
           <label class="form-check-label" for="toggleTheme"></label>
         </div>
+      </div>
 
+      <!-- Options -->
+
+      <div class="col-6 col-md d-flex flex-column align-items-center">
+        <label for="toggleEdits" class="form-label">Options</label>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="toggleEdits" @change="toggleEdits" />
           <label class="form-check-label" for="toggleEdits"></label>
         </div>
+      </div>
 
-        <button v-if="editsActive" id="undoButton" class="btn btn-secondary" @click="undo">
-          Undo Delete
-        </button>
+      <!-- Undo -->
+      <div v-if="editsActive" class="col-6 col-md d-flex flex-column align-items-center">
+        <label for="undoButton" class="form-label">
+          <span> Undo Stack: {{ store.undoStack.length }}</span></label
+        >
+        <button id="undoButton" class="btn btn-secondary" @click="undo">Undo Delete</button>
       </div>
     </div>
+  </div>
 
-    <!-- Results -->
-    <h5 v-if="highlightsCountActive">Total Highlights: {{ store.totalHighlights }}</h5>
+  <!-- Results -->
+  <div class="container" style="overflow-y: auto; height: 900px">
+    <h5 v-if="metadataActive">Total Highlights: {{ store.totalHighlights }}</h5>
     <!--Subtract 1 for 'All Authors'-->
-    <h6 v-if="highlightsCountActive">Total Authors: {{ allAuthors.length - 1 }}</h6>
-    <div style="overflow-y: auto; height: 900px">
-      <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
-        <div
-          v-if="
-            store.highlightsPerBook[group.booktitle] > 0 && (!selectedActive || group.anySelected)
-          "
-        >
-          <hr />
-          <h5>
-            {{ group.booktitle }}
-            <span class="text-muted-custom" v-if="highlightsCountActive"
-              >({{ store.highlightsPerBook[group.booktitle] }} highlights)</span
-            >
-          </h5>
-          <h6>
-            {{ group.author }}
-            <span class="text-muted-custom" style="font-size: 1rem" v-if="highlightsCountActive"
-              >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
-            >
-          </h6>
-          <div v-for="(entry, index) in group.entry" :key="index">
-            <div v-if="!entry.deleted && (!selectedActive || entry.selected)">
-              <div v-if="metadataActive || highlightsActive || editsActive">
-                <hr />
-              </div>
+    <h6 v-if="metadataActive">Total Authors: {{ allAuthors.length - 1 }}</h6>
+    <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
+      <div
+        v-if="
+          store.highlightsPerBook[group.booktitle] > 0 && (!selectedActive || group.anySelected)
+        "
+      >
+        <hr />
+        <h5>
+          {{ group.booktitle }}
+          <span class="text-muted-custom" v-if="metadataActive"
+            >({{ store.highlightsPerBook[group.booktitle] }} highlights)</span
+          >
+        </h5>
+        <h6>
+          {{ group.author }}
+          <span class="text-muted-custom" style="font-size: 1rem" v-if="metadataActive"
+            >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
+          >
+        </h6>
+        <div v-for="(entry, index) in group.entry" :key="index">
+          <div v-if="!entry.deleted && (!selectedActive || entry.selected)">
+            <div v-if="metadataActive || highlightsActive || editsActive">
+              <hr />
+            </div>
 
-              <div
-                @mouseenter="hoveredId = entry.id"
-                @mouseleave="hoveredId = null"
-                @click="selectHighlight(entry.id)"
-                class="hover-container"
-                :style="{
-                  color: entry.selected ? 'var(--selected-color)' : 'inherit',
-                  backgroundColor:
-                    hoveredId === entry.id ? 'var(--hover-background-color)' : 'inherit',
-                }"
+            <div
+              @mouseenter="hoveredId = entry.id"
+              @mouseleave="hoveredId = null"
+              @click="selectHighlight(entry.id)"
+              class="hover-container"
+              :style="{
+                color: entry.selected ? 'var(--selected-color)' : 'inherit',
+                backgroundColor:
+                  hoveredId === entry.id ? 'var(--hover-background-color)' : 'inherit',
+              }"
+            >
+              <p v-if="metadataActive" class="text-muted-custom">
+                {{ entry.metadata }} | Characters: {{ entry.highlight.length }}
+                <br />
+              </p>
+
+              <div v-if="highlightsActive">
+                <p style="margin: 0px">{{ index + 1 }}. {{ entry.highlight }}</p>
+              </div>
+            </div>
+            <div v-if="editsActive" style="display: flex; gap: 10px">
+              <button
+                class="btn btn-primary btn-sm"
+                @click="shareToBluesky(entry.id)"
+                style="margin-top: 10px"
               >
-                <p v-if="metadataActive" class="text-muted-custom">
-                  {{ entry.metadata }} | Characters: {{ entry.highlight.length }}
-                  <br />
-                </p>
+                Bluesky
+                <font-awesome-icon :icon="['fab', 'bluesky']" />
+              </button>
 
-                <div v-if="highlightsActive">
-                  <p style="margin: 0px">{{ index + 1 }}. {{ entry.highlight }}</p>
-                </div>
-              </div>
-              <div v-if="editsActive" style="display: flex; gap: 10px">
+              <div class="tooltip-container">
                 <button
-                  class="btn btn-primary btn-sm"
-                  @click="shareToBluesky(entry.id)"
+                  class="btn btn-success btn-sm"
+                  @mouseenter="hoveredId = entry.id"
+                  @mouseleave="hoveredId = null"
+                  @click="copyHighlight(entry.id)"
                   style="margin-top: 10px"
                 >
-                  Bluesky
-                  <font-awesome-icon :icon="['fab', 'bluesky']" />
+                  Copy
                 </button>
-
-                <div class="tooltip-container">
-                  <button
-                    class="btn btn-success btn-sm"
-                    @mouseenter="hoveredId = entry.id"
-                    @mouseleave="hoveredId = null"
-                    @click="copyHighlight(entry.id)"
-                    style="margin-top: 10px"
-                  >
-                    Copy
-                  </button>
-                  <span v-if="showTooltip && hoveredId === entry.id" class="tooltip"
-                    >Copied to clipboard!</span
-                  >
-                </div>
-
-                <button
-                  class="btn btn-danger btn-sm"
-                  @click="deleteHighlight(entry.id)"
-                  style="margin-top: 10px"
+                <span v-if="showTooltip && hoveredId === entry.id" class="tooltip"
+                  >Copied to clipboard!</span
                 >
-                  Delete
-                </button>
               </div>
+
+              <button
+                class="btn btn-danger btn-sm"
+                @click="deleteHighlight(entry.id)"
+                style="margin-top: 10px"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

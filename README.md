@@ -22,7 +22,7 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - ~~Select clippings~~
 - Select/deselect all/author/book
 - Ensure compatibility if MyClippings.txt has different formats
-- Better mobile support
+- ~~Better mobile support~~
 
 ## Changelog
 

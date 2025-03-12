@@ -17,6 +17,7 @@ const highlightsActive = ref(true)
 const metadataActive = ref(false)
 const editsActive = ref(false)
 const selectedActive = ref(false)
+const favoritesActive = ref(false)
 const hoveredId: Ref<number | null> = ref(null)
 
 function toggleHighlights() {
@@ -33,6 +34,10 @@ function toggleEdits() {
 
 function toggleSelection() {
   selectedActive.value = !selectedActive.value
+}
+
+function toggleFavorites() {
+  favoritesActive.value = !favoritesActive.value
 }
 
 const selectSortOption = (option: string) => {
@@ -61,12 +66,20 @@ type Entry = {
   metadata: string
   deleted: boolean
   selected: boolean
+  favorited: boolean
 }
 
 const groupedHighlights = computed(() => {
   const groups = new Map<
     string,
-    { id: number; author: string; booktitle: string; entry: Entry[]; anySelected: boolean }
+    {
+      id: number
+      author: string
+      booktitle: string
+      entry: Entry[]
+      anySelected: boolean
+      anyFavorited: boolean
+    }
   >()
 
   //store.filteredHighlights.forEach((h) => console.log(h))
@@ -81,6 +94,7 @@ const groupedHighlights = computed(() => {
         booktitle: h.booktitle,
         entry: [],
         anySelected: false,
+        anyFavorited: false,
       })
     }
 
@@ -93,11 +107,13 @@ const groupedHighlights = computed(() => {
       metadata: h.metadata,
       deleted: h.deleted,
       selected: h.selected,
+      favorited: h.favorited,
     })
 
     const group = groups.get(key)
     if (group) {
       group.anySelected = group.anySelected || h.selected
+      group.anyFavorited = group.anyFavorited || h.favorited
     }
   }
 
@@ -127,6 +143,13 @@ function selectHighlight(id: number) {
   const highlight = store.filteredHighlights.find((h) => h.id === id)
   if (highlight) {
     highlight.selected = !highlight.selected
+  }
+}
+
+function favoriteHighlight(id: number) {
+  const highlight = store.filteredHighlights.find((h) => h.id === id)
+  if (highlight) {
+    highlight.favorited = !highlight.favorited
   }
 }
 
@@ -306,9 +329,7 @@ const shareToBluesky = (id: number) => {
 
       <!-- Selection -->
       <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="toggleSelection" class="form-label"
-          >Selection ({{ store.totalSelected }})</label
-        >
+        <label for="toggleSelection" class="form-label">Selected ({{ store.totalSelected }})</label>
         <div class="form-check form-switch">
           <input
             class="form-check-input"
@@ -317,6 +338,22 @@ const shareToBluesky = (id: number) => {
             @change="toggleSelection()"
           />
           <label class="form-check-label" for="toggleSelection"></label>
+        </div>
+      </div>
+
+      <!-- Favorites -->
+      <div class="col-6 col-md d-flex flex-column align-items-center">
+        <label for="toggleSelection" class="form-label"
+          >Favorites ({{ store.totalFavorited }})</label
+        >
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="toggleFavorites"
+            @change="toggleFavorites()"
+          />
+          <label class="form-check-label" for="toggleFavorites"></label>
         </div>
       </div>
 
@@ -364,7 +401,9 @@ const shareToBluesky = (id: number) => {
     <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
       <div
         v-if="
-          store.highlightsPerBook[group.booktitle] > 0 && (!selectedActive || group.anySelected)
+          store.highlightsPerBook[group.booktitle] > 0 &&
+          (!selectedActive || group.anySelected) &&
+          (!favoritesActive || group.anyFavorited)
         "
       >
         <hr />
@@ -381,7 +420,13 @@ const shareToBluesky = (id: number) => {
           >
         </h6>
         <div v-for="(entry, index) in group.entry" :key="index">
-          <div v-if="!entry.deleted && (!selectedActive || entry.selected)">
+          <div
+            v-if="
+              !entry.deleted &&
+              (!selectedActive || entry.selected) &&
+              (!favoritesActive || entry.favorited)
+            "
+          >
             <div v-if="metadataActive || highlightsActive || editsActive">
               <hr />
             </div>
@@ -407,6 +452,27 @@ const shareToBluesky = (id: number) => {
               </div>
             </div>
             <div v-if="editsActive" style="display: flex; gap: 10px">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                style="margin-top: 10px"
+                @click="favoriteHighlight(entry.id)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  :fill="entry.favorited ? 'crimson' : 'silver'"
+                  class="bi bi-heart-fill"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"
+                  />
+                </svg>
+              </button>
+
               <button
                 class="btn btn-primary btn-sm"
                 @click="shareToBluesky(entry.id)"
@@ -447,6 +513,26 @@ const shareToBluesky = (id: number) => {
 </template>
 
 <style scoped>
+.favorite-check {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.favorite-check .bi {
+  font-size: 1.5rem; /* Adjust size as needed */
+  transition: color 0.2s ease;
+}
+
+.favorite-check .bi-heart {
+  color: #aaa; /* Default empty heart color */
+}
+
+.favorite-check .bi-heart-fill {
+  color: #dc3545; /* Bootstrap's 'text-danger' color */
+}
+
 .tooltip-container {
   position: relative;
   display: inline-block;

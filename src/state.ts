@@ -88,6 +88,10 @@ export const useHighlightStore = defineStore('highlightStore', () => {
     return Object.values(filteredHighlights.value).filter((h) => h.selected && !h.deleted).length
   })
 
+  const totalFavorited = computed(() => {
+    return Object.values(filteredHighlights.value).filter((h) => h.favorited && !h.deleted).length
+  })
+
   return {
     highlightsDF,
     filterActive,
@@ -99,6 +103,7 @@ export const useHighlightStore = defineStore('highlightStore', () => {
     totalHighlights,
     undoStack,
     totalSelected,
+    totalFavorited,
     $reset,
   }
 })
@@ -111,6 +116,7 @@ export type HighlightDF = {
   metadata: string
   deleted: boolean
   selected: boolean
+  favorited: boolean
 }
 
 export function selectAuthor(selectedAuthor: string) {

@@ -14,7 +14,7 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - ~~Toggle displaying location and date~~
 - ~~Share to Bluesky~~
 - ~~Delete clipping~~
-- Edit clipping?
+- Edit clipping/author/book title
 - Save/overwrite MyClippings.txt
 - Filter by book
 - ~~Sort authors/titles by number of clippings~~

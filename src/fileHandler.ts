@@ -67,6 +67,7 @@ function parseClippings(content: string) {
       metadata: entry.metadata,
       deleted: false,
       selected: false,
+      favorited: entry.metadata.includes('$F'),
     })
   })
 }

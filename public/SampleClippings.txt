@@ -15,7 +15,7 @@ Merchants of Doubt (Naomi Oreskes)
 None of the questions was illegitimate, but they were all disingenuous, because the answers were known: Cancer rates vary between cities and countries because smoking is not the only cause of cancer. The greater rise in cancer in men is the result of latency—lung cancer appears ten, twenty, or thirty years after a person begins to smoke—so women, who had only recently begun to smoke heavily, would get cancer in due course (which they did). Improved diagnosis explained some of the observed increase, but not all: lung cancer was an exceptionally rare disease before the invention of the mass-marketed cigarette. And so on. When posed to journalists, however, the loaded questions did the trick: they convinced people who didn’t know otherwise that there was still a lot of doubt about the whole matter. The industry had realized that you could create the impression of controversy simply by asking questions, even if you actually knew the answers and they didn’t help your case. And so the industry began to transmogrify emerging scientific consensus into raging scientific “debate.”
 ==========
 Doppelganger (Naomi Klein)
-- Your Highlight on page 338 | location 5176-5180 | Added on Thursday, 12 September 2024 01:58:50
+- Your Highlight on page 338 | location 5176-5180 | Added on Thursday, 12 September 2024 01:58:50 | $F
 
 But the truth is that nothing of much consequence in the face of our rigged systems can be accomplished on our own—whether by our own small selves or even by our own identity groups. Change requires collaboration and coalition, even (especially) uncomfortable coalition. Mariame Kaba, a longtime prison abolitionist who has done as much as anyone to imagine what it would take to live in a world that does not equate safety with police and cages, puts the lesson succinctly, one passed on to her by her father: “Everything worthwhile is done with other people.”
 ==========
@@ -25,7 +25,7 @@ Merchants of Doubt (Naomi Oreskes)
 Doubt is crucial to science—in the version we call curiosity or healthy skepticism, it drives science forward—but it also makes science vulnerable to misrepresentation, because it is easy to take uncertainties out of context and create the impression that everything is unresolved. This was the tobacco industry’s key insight: that you could use normal scientific uncertainty to undermine the status of actual scientific knowledge.
 ==========
 In the Realm of Hungry Ghosts: Close Encounters with Addiction (Gabor Mate Md)
-- Your Highlight on page 293 | location 4490-4492 | Added on Wednesday, 11 December 2024 12:15:00
+- Your Highlight on page 293 | location 4490-4492 | Added on Wednesday, 11 December 2024 12:15:00 | $F
 
 The defeatist belief that all pursuits arise from a selfish core in all humanity denies the deeper motives that also activate people: love, creativity, spiritual quest, the drive for mastery and autonomy, the impulse to make a contribution.
 ==========

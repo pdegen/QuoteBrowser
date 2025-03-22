@@ -13,16 +13,18 @@ Browse clippings (highlights) saved from your Kindle eReader.
 
 - ~~Toggle displaying location and date~~
 - ~~Share to Bluesky~~
+  - Post thread if > 300 characters
 - ~~Delete clipping~~
-- Edit clipping?
+- Edit clipping/author/book title
 - Save/overwrite MyClippings.txt
 - Filter by book
 - ~~Sort authors/titles by number of clippings~~
 - Search clippings
 - ~~Select clippings~~
-- Select/deselect all/author/book
-- Ensure compatibility if MyClippings.txt has different formats
+- ~~Select/deselect all/author/book~~
+- Ensure compatibility if MyClippings.txt has different format
 - ~~Better mobile support~~
+- Side navigation bar
 
 ## Changelog
 

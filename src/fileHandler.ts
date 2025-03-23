@@ -1,4 +1,7 @@
 import { store } from './main'
+import { type HighlightDF } from './state'
+
+const delim = '=========='
 
 export function uploadSample() {
   store.$reset()
@@ -40,7 +43,7 @@ export function handleFileUpload(event: Event) {
 
 function parseClippings(content: string) {
   const entries = content
-    .split('==========')
+    .split(delim)
     .map((entry) => entry.trim())
     .filter((entry) => entry)
 
@@ -70,4 +73,31 @@ function parseClippings(content: string) {
       favorited: entry.metadata.includes('$F'),
     })
   })
+}
+
+export function saveHighlightsDF(highlightDF: HighlightDF[]) {
+  let content = ''
+
+  for (let i = 0; i < highlightDF.length; i++) {
+    const h = highlightDF[i]
+    if (h.deleted) continue
+
+    content += `${delim}\n${h.booktitle} (${h.author})}\n${h.metadata}`
+    if (h.favorited) content += ' | $F'
+    content += `\n\n${h.highlight}\n`
+  }
+
+  saveToFile(content)
+}
+
+function saveToFile(content: string) {
+  const blob = new Blob([content], { type: 'text/plain' })
+  const url = URL.createObjectURL(blob)
+
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'myFile.txt'
+  link.click()
+
+  URL.revokeObjectURL(url) // Clean up
 }

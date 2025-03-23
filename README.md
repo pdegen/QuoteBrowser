@@ -16,7 +16,7 @@ Browse clippings (highlights) saved from your Kindle eReader.
   - Post thread if > 300 characters
 - ~~Delete clipping~~
 - Edit clipping/author/book title
-- Save/overwrite MyClippings.txt
+- ~~Save/overwrite MyClippings.txt~~
 - Filter by book
 - ~~Sort authors/titles by number of clippings~~
 - Search clippings
@@ -25,6 +25,8 @@ Browse clippings (highlights) saved from your Kindle eReader.
 - Ensure compatibility if MyClippings.txt has different format
 - ~~Better mobile support~~
 - Side navigation bar
+- Keyboard shortcuts
+- Arrow navigation
 
 ## Changelog
 

@@ -2,7 +2,7 @@
 import { ref, computed, type Ref } from 'vue'
 import { selectAuthor, SortOptions } from './state.ts'
 import { store } from './main.ts'
-import { handleFileUpload, uploadSample } from './fileHandler'
+import { handleFileUpload, uploadSample, saveHighlightsDF } from './fileHandler'
 import { useDark, useToggle } from '@vueuse/core'
 
 const isDark = useDark({
@@ -231,6 +231,13 @@ const shareToBluesky = (id: number) => {
         accept=".txt"
         @input="(event) => handleFileUpload(event)"
       />
+      <button
+        @click="saveHighlightsDF(store.highlightsDF)"
+        id="saveButton"
+        class="btn btn-secondary col-md-auto"
+      >
+        Save to File
+      </button>
       <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary col-md-auto">
         Sample Clippings
       </button>

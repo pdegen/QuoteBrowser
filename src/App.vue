@@ -216,36 +216,36 @@ const shareToBluesky = (id: number) => {
 </script>
 
 <template>
-  <!-- Upload -->
-  <div class="container my-5">
-    <h1 class="text-center" id="header">Kindle Highlights Viewer</h1>
-
-    <div class="row d-flex align-items-center gap-2">
-      <label for="fileInput" class="form-label col-md-auto" style="white-space: nowrap"
-        >Upload MyClippings.txt</label
-      >
-      <input
-        type="file"
-        id="fileInput"
-        class="form-control col"
-        accept=".txt"
-        @input="(event) => handleFileUpload(event)"
-      />
-      <button
-        @click="saveHighlightsDF(store.highlightsDF)"
-        id="saveButton"
-        class="btn btn-secondary col-md-auto"
-      >
-        Save to File
-      </button>
-      <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary col-md-auto">
-        Sample Clippings
-      </button>
-    </div>
-  </div>
-
-  <!-- Options -->
   <div class="container">
+    <div class="row d-flex align-items-center">
+      <h1 class="text-center" id="header" style="padding: 0.5rem; margin: 1rem">Quote Browser</h1>
+      <!-- Upload -->
+      <div class="row d-flex align-items-center gap-2">
+        <label for="fileInput" class="form-label col-md-auto" style="white-space: nowrap"
+          >Upload MyClippings.txt</label
+        >
+        <input
+          type="file"
+          id="fileInput"
+          class="form-control col"
+          accept=".txt"
+          @input="(event) => handleFileUpload(event)"
+        />
+        <button
+          @click="saveHighlightsDF(store.highlightsDF)"
+          id="saveButton"
+          class="btn btn-secondary col-md-auto"
+        >
+          Save to File
+        </button>
+        <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary col-md-auto">
+          Sample Clippings
+        </button>
+      </div>
+    </div>
+    <hr />
+
+    <!-- Options -->
     <div class="row d-flex align-items-center">
       <!-- Author dropdown -->
       <div class="col-6 col-md d-flex flex-column align-items-center">

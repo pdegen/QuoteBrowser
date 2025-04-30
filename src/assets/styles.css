@@ -40,11 +40,11 @@
   }
 }
 [theme='custom-dark'] {
-  background: #16171d;
+  background: #1f2937;
   color: #fff;
 
   #header {
-    background-color: crimson;
+    background-color: #00b894;
   }
 
   .text-muted-custom {
@@ -54,9 +54,9 @@
   .hover-container {
     display: inline-block;
     padding: 0px;
-    background-color: #16171d;
+    background-color: #1f2937;
     color: white;
     --hover-background-color: rgb(48, 48, 48);
-    --selected-color: lightgreen;
+    --selected-color: #00b894;
   }
 }

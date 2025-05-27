@@ -60,11 +60,11 @@
     padding: 0px;
     background-color: #1f2937;
     color: white;
-    --hover-background-color: rgb(48, 48, 48);
-    --selected-color: #00b894;
+    --hover-background-color: #2e405a;
+    --selected-color: #11e2b8;
   }
 
   .bg-info {
-    background-color: #b4bdca !important;
+    background-color: #9ab4d8 !important;
   }
 }

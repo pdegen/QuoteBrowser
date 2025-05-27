@@ -123,6 +123,7 @@ const groupedHighlights = computed(() => {
 function deleteHighlight(id: number) {
   const item = store.filteredHighlights.find((h) => h.id === id)
   if (item) {
+    if (item.deleted) return
     item.deleted = true
   }
   store.undoStack.push({ action: 'delete', id })
@@ -130,7 +131,7 @@ function deleteHighlight(id: number) {
 
 function deleteSelected() {
   store.filteredHighlights.forEach((highlight) => {
-    if (highlight.selected) {
+    if (highlight.selected && !highlight.deleted) {
       highlight.deleted = true
       const id = highlight.id
       store.undoStack.push({ action: 'delete', id })
@@ -230,44 +231,45 @@ const shareToBluesky = (id: number) => {
       </div>
     </div>
 
-    <!-- Upload -->
-    <div class="row align-items-center gap-2">
-      <div class="col-lg text-center">
-        <label for="fileInput" class="form-label col-lg text-center" style="margin: 0"
-          >Upload MyClippings.txt</label
-        >
-      </div>
-      <div class="col-lg-6">
-        <input
-          type="file"
-          id="fileInput"
-          class="form-control"
-          accept=".txt"
-          @input="(event) => handleFileUpload(event)"
-        />
-      </div>
-      <div class="col-lg">
-        <button
-          @click="saveHighlightsDF(store.highlightsDF)"
-          id="saveButton"
-          class="btn btn-secondary w-100"
-        >
-          Save to File
-        </button>
-      </div>
-      <div class="col-lg">
-        <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary w-100">
-          Sample Clippings
-        </button>
-      </div>
-    </div>
-    <hr />
-
-    <!-- Options Panel -->
-    <div class="row align-items-center my-4 mx-0">
+    <!-- Control Panel -->
+    <div class="row align-items-center mx-0" style="margin-bottom: 1.5rem">
       <div class="card shadow-sm border-0 bg-info" style="padding: 0">
         <div class="card-body">
           <!-- <h5 class="card-title">Text Controls</h5> -->
+
+          <!-- Upload -->
+          <div class="row align-items-center gap-2">
+            <div class="col-lg text-center">
+              <label for="fileInput" class="form-label" style="margin: 0"
+                >Upload MyClippings.txt</label
+              >
+            </div>
+            <div class="col-lg-6">
+              <input
+                type="file"
+                id="fileInput"
+                class="form-control"
+                accept=".txt"
+                @input="(event) => handleFileUpload(event)"
+              />
+            </div>
+            <div class="col-lg">
+              <button
+                @click="saveHighlightsDF(store.highlightsDF)"
+                id="saveButton"
+                class="btn btn-secondary w-100"
+              >
+                Save to File
+              </button>
+            </div>
+            <div class="col-lg">
+              <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary w-100">
+                Sample Clippings
+              </button>
+            </div>
+          </div>
+
+          <hr />
 
           <!-- Primary Options -->
           <div class="row gy-3 gx-4 align-items-center">
@@ -457,43 +459,52 @@ const shareToBluesky = (id: number) => {
               </div>
             </div>
           </div>
+
           <!-- Secondary Options -->
           <div class="collapse" id="secondaryOptions">
             <hr />
 
-            <div class="row d-flex align-items-center">
-              <div class="col-6 col-md d-flex flex-column align-items-center">
-                <label class="form-label"><span>Displayed</span></label>
-                <div class="btn-group" role="group">
-                  <button class="btn btn-secondary col-md-auto" @click="selectAllDisplayed">
-                    Select All
-                  </button>
-                  <button class="btn btn-secondary col-md-auto" @click="deselectAllDisplayed">
-                    Deselect All
-                  </button>
+            <div class="row align-items-center g-3">
+              <!-- Displayed Options -->
+              <div class="col-12 col-lg-4">
+                <div class="d-flex flex-column align-items-center">
+                  <label class="form-label"><span>Displayed</span></label>
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-secondary" @click="selectAllDisplayed">
+                      Select All
+                    </button>
+                    <button class="btn btn-secondary" @click="deselectAllDisplayed">
+                      Deselect All
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div class="col-6 col-md d-flex flex-column align-items-center">
-                <label class="form-label"><span>Selection</span></label>
+              <!-- Selected Options -->
+              <div class="col-12 col-lg-4">
+                <div class="d-flex flex-column align-items-center">
+                  <label class="form-label"><span>Selection</span></label>
 
-                <div class="btn-group" role="group">
-                  <button class="btn btn-secondary col-md-auto" @click="favoriteSelected">
-                    Favorite
-                  </button>
-                  <button class="btn btn-secondary col-md-auto" @click="unfavoriteSelected">
-                    Unfavorite
-                  </button>
-                  <button class="btn btn-danger col-md-auto" @click="deleteSelected">Delete</button>
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-secondary" @click="favoriteSelected">Favorite</button>
+                    <button class="btn btn-secondary" @click="unfavoriteSelected">
+                      Unfavorite
+                    </button>
+                    <button class="btn btn-danger" @click="deleteSelected">Delete</button>
+                  </div>
                 </div>
               </div>
 
-              <!-- Undo -->
-              <div class="col-6 col-md d-flex flex-column align-items-center">
-                <label for="undoButton" class="form-label">
-                  <span> Undo Stack: {{ store.undoStack.length }}</span></label
-                >
-                <button id="undoButton" class="btn btn-secondary" @click="undo">Undo Delete</button>
+              <!-- Undo Options -->
+              <div class="col-12 col-lg-4">
+                <div class="d-flex flex-column align-items-center">
+                  <label for="undoButton" class="form-label">
+                    <span> Undo Stack: {{ store.undoStack.length }}</span></label
+                  >
+                  <button id="undoButton" class="btn btn-secondary" @click="undo">
+                    Undo Delete
+                  </button>
+                </div>
               </div>
             </div>
           </div>

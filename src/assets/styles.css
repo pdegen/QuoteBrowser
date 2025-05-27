@@ -38,6 +38,9 @@
     --hover-background-color: Gainsboro;
     --selected-color: green;
   }
+  .bg-info {
+    background-color: #b4bdca !important;
+  }
 }
 [theme='custom-dark'] {
   background: #1f2937;
@@ -45,6 +48,7 @@
 
   #header {
     background-color: #00b894;
+    color: #fff;
   }
 
   .text-muted-custom {
@@ -58,5 +62,9 @@
     color: white;
     --hover-background-color: rgb(48, 48, 48);
     --selected-color: #00b894;
+  }
+
+  .bg-info {
+    background-color: #b4bdca !important;
   }
 }

@@ -217,365 +217,402 @@ const shareToBluesky = (id: number) => {
 
 <template>
   <div class="container">
-    <div class="row d-flex align-items-center">
-      <h1 class="text-center" id="header" style="padding: 0.5rem; margin: 1rem">Quote Browser</h1>
-      <!-- Upload -->
-      <div class="row d-flex align-items-center gap-2">
-        <label for="fileInput" class="form-label col-md-auto" style="white-space: nowrap"
+    <!-- Header -->
+    <div class="row align-items-center">
+      <div class="col-lg">
+        <h1
+          class="card shadow-sm border-0 text-center"
+          id="header"
+          style="padding: 0.5rem; margin: 1rem 0 1rem 0"
+        >
+          Quote Browser
+        </h1>
+      </div>
+    </div>
+
+    <!-- Upload -->
+    <div class="row align-items-center gap-2">
+      <div class="col-lg text-center">
+        <label for="fileInput" class="form-label col-lg text-center" style="margin: 0"
           >Upload MyClippings.txt</label
         >
+      </div>
+      <div class="col-lg-6">
         <input
           type="file"
           id="fileInput"
-          class="form-control col"
+          class="form-control"
           accept=".txt"
           @input="(event) => handleFileUpload(event)"
         />
+      </div>
+      <div class="col-lg">
         <button
           @click="saveHighlightsDF(store.highlightsDF)"
           id="saveButton"
-          class="btn btn-secondary col-md-auto"
+          class="btn btn-secondary w-100"
         >
           Save to File
         </button>
-        <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary col-md-auto">
+      </div>
+      <div class="col-lg">
+        <button @click="uploadSample()" id="sampleButton" class="btn btn-secondary w-100">
           Sample Clippings
         </button>
       </div>
     </div>
     <hr />
 
-    <!-- Options -->
-    <div class="row d-flex align-items-center">
-      <!-- Author dropdown -->
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="authorDropdown" class="form-label">Filter by Author</label>
-        <div class="dropdown">
-          <button
-            class="btn btn-secondary dropdown-toggle"
-            type="button"
-            id="authorDropdownButton"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {{ store.selectedAuthor }}
-          </button>
-          <ul class="dropdown-menu" id="authorDropdown">
-            <input
-              v-model="searchQuery"
-              type="text"
-              class="search-input"
-              id="searchInput"
-              placeholder="Search authors..."
-            />
-            <!-- Dropdown options will be added dynamically here -->
-            <li
-              v-for="author in filteredAuthors"
-              :key="author"
-              class="dropdown-item"
-              @click="selectAuthor(author)"
-            >
-              {{ author }}
-            </li>
+    <!-- Options Panel -->
+    <div class="row align-items-center my-4 mx-0">
+      <div class="card shadow-sm border-0 bg-info" style="padding: 0">
+        <div class="card-body">
+          <!-- <h5 class="card-title">Text Controls</h5> -->
 
-            <li v-if="filteredAuthors.length === 0" class="dropdown-item text-muted-custom">
-              No authors found
-            </li>
-          </ul>
-        </div>
-      </div>
+          <!-- Primary Options -->
+          <div class="row gy-3 gx-4 align-items-center">
+            <!-- Author dropdown -->
+            <div class="col-6 col-md d-flex flex-column align-items-center">
+              <label for="authorDropdown" class="form-label">Filter by Author</label>
+              <div class="dropdown">
+                <button
+                  class="btn btn-secondary dropdown-toggle"
+                  type="button"
+                  id="authorDropdownButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  {{ store.selectedAuthor }}
+                </button>
+                <ul class="dropdown-menu" id="authorDropdown">
+                  <input
+                    v-model="searchQuery"
+                    type="text"
+                    class="search-input"
+                    id="searchInput"
+                    placeholder="Search authors..."
+                  />
+                  <!-- Dropdown options will be added dynamically here -->
+                  <li
+                    v-for="author in filteredAuthors"
+                    :key="author"
+                    class="dropdown-item"
+                    @click="selectAuthor(author)"
+                  >
+                    {{ author }}
+                  </li>
 
-      <!-- Sort -->
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="sortBy" class="form-label">Sort</label>
-        <div class="dropdown">
-          <button
-            class="btn btn-secondary dropdown-toggle"
-            type="button"
-            id="sortBy"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Sort by
-          </button>
-          <ul class="dropdown-menu col" aria-labelledby="sortBy">
-            <li>
-              <a
-                class="dropdown-item"
-                href="#"
-                data-value="author"
-                @click="selectSortOption('author')"
-                >Author (Alphabetical)</a
-              >
-            </li>
-            <li>
-              <a
-                class="dropdown-item"
-                href="#"
-                data-value="highlightCountAuthor"
-                @click="selectSortOption('highlightCountAuthor')"
-                >Author (Highlights)</a
-              >
-            </li>
-            <li>
-              <a
-                class="dropdown-item"
-                href="#"
-                data-value="title"
-                @click="selectSortOption('title')"
-                >Title (Alphabetical)</a
-              >
-            </li>
-            <li>
-              <a
-                class="dropdown-item"
-                href="#"
-                data-value="highlightCountTitle"
-                @click="selectSortOption('highlightCountTitle')"
-                >Title (Highlights)</a
-              >
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Highlights -->
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="toggleHighlight" class="form-label">Highlights</label>
-        <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="toggleHighlight"
-            checked
-            @change="toggleHighlights()"
-          />
-          <label class="form-check-label" for="toggleHighlight"></label>
-        </div>
-      </div>
-
-      <!-- Metadata -->
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="toggleMetadata" class="form-label">Metadata</label>
-        <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="toggleMetadata"
-            @change="toggleMetadata()"
-          />
-          <label class="form-check-label" for="toggleMetadata"></label>
-        </div>
-      </div>
-
-      <!-- Selection -->
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="toggleSelection" class="form-label">Selected ({{ store.totalSelected }})</label>
-        <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="toggleSelection"
-            @change="toggleSelection()"
-          />
-          <label class="form-check-label" for="toggleSelection"></label>
-        </div>
-      </div>
-
-      <!-- Favorites -->
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="toggleSelection" class="form-label"
-          >Favorites ({{ store.totalFavorited }})</label
-        >
-        <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="toggleFavorites"
-            @change="toggleFavorites()"
-          />
-          <label class="form-check-label" for="toggleFavorites"></label>
-        </div>
-      </div>
-
-      <!-- Options Toggle -->
-
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="toggleEdits" class="form-label">Options</label>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" id="toggleEdits" @change="toggleEdits" />
-          <label class="form-check-label" for="toggleEdits"></label>
-        </div>
-      </div>
-
-      <!-- Dark mode -->
-
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="toggleTheme" class="form-label">Dark Mode</label>
-        <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="toggleTheme"
-            checked
-            @change="toggleDark()"
-          />
-          <label class="form-check-label" for="toggleTheme"></label>
-        </div>
-      </div>
-    </div>
-    <hr />
-  </div>
-
-  <!-- Secondary Options -->
-  <div class="container my-1" v-if="selectedActive || editsActive">
-    <div class="row d-flex align-items-center">
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label class="form-label"><span>Displayed</span></label>
-        <div class="btn-group" role="group">
-          <button class="btn btn-secondary col-md-auto" @click="selectAllDisplayed">
-            Select All
-          </button>
-          <button class="btn btn-secondary col-md-auto" @click="deselectAllDisplayed">
-            Deselect All
-          </button>
-        </div>
-      </div>
-
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label class="form-label"><span>Selection</span></label>
-
-        <div class="btn-group" role="group">
-          <button class="btn btn-secondary col-md-auto" @click="favoriteSelected">Favorite</button>
-          <button class="btn btn-secondary col-md-auto" @click="unfavoriteSelected">
-            Unfavorite
-          </button>
-          <button class="btn btn-danger col-md-auto" @click="deleteSelected">Delete</button>
-        </div>
-      </div>
-
-      <!-- Undo -->
-      <div class="col-6 col-md d-flex flex-column align-items-center">
-        <label for="undoButton" class="form-label">
-          <span> Undo Stack: {{ store.undoStack.length }}</span></label
-        >
-        <button id="undoButton" class="btn btn-secondary" @click="undo">Undo Delete</button>
-      </div>
-    </div>
-    <hr />
-  </div>
-
-  <!-- Results -->
-  <div class="container" style="overflow-y: auto; height: 900px">
-    <h5>Total Highlights: {{ store.totalHighlights }}</h5>
-    <!--Subtract 1 for 'All Authors'-->
-    <h6>Total Authors: {{ allAuthors.length - 1 }}</h6>
-    <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
-      <div
-        v-if="
-          store.highlightsPerBook[group.booktitle] > 0 &&
-          (!selectedActive || group.anySelected) &&
-          (!favoritesActive || group.anyFavorited)
-        "
-      >
-        <hr />
-        <h5>
-          {{ group.booktitle }}
-          <span class="text-muted-custom" v-if="metadataActive"
-            >({{ store.highlightsPerBook[group.booktitle] }} highlights)</span
-          >
-        </h5>
-        <h6>
-          {{ group.author }}
-          <span class="text-muted-custom" style="font-size: 1rem" v-if="metadataActive"
-            >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
-          >
-        </h6>
-        <div v-for="(entry, index) in group.entry" :key="index">
-          <div
-            v-if="
-              !entry.deleted &&
-              (!selectedActive || entry.selected) &&
-              (!favoritesActive || entry.favorited)
-            "
-          >
-            <div v-if="metadataActive || highlightsActive || editsActive">
-              <hr />
-            </div>
-
-            <div
-              @mouseenter="hoveredId = entry.id"
-              @mouseleave="hoveredId = null"
-              @click="selectHighlight(entry.id)"
-              class="hover-container"
-              :style="{
-                color: entry.selected ? 'var(--selected-color)' : 'inherit',
-                backgroundColor:
-                  hoveredId === entry.id ? 'var(--hover-background-color)' : 'inherit',
-              }"
-            >
-              <p v-if="metadataActive" class="text-muted-custom">
-                {{ entry.metadata }} | Characters: {{ entry.highlight.length }}
-                <br />
-              </p>
-
-              <div v-if="highlightsActive">
-                <p style="margin: 0px">{{ index + 1 }}. {{ entry.highlight }}</p>
+                  <li v-if="filteredAuthors.length === 0" class="dropdown-item text-muted-custom">
+                    No authors found
+                  </li>
+                </ul>
               </div>
             </div>
-            <div v-if="editsActive" style="display: flex; gap: 10px">
-              <button
-                type="button"
-                class="btn btn-secondary btn-sm"
-                style="margin-top: 10px"
-                @click="favoriteHighlight(entry.id)"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  :fill="entry.favorited ? 'crimson' : 'silver'"
-                  class="bi bi-heart-fill"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"
-                  />
-                </svg>
-              </button>
 
-              <button
-                class="btn btn-primary btn-sm"
-                @click="shareToBluesky(entry.id)"
-                style="margin-top: 10px"
-              >
-                Bluesky
-                <font-awesome-icon :icon="['fab', 'bluesky']" />
-              </button>
-
-              <div class="tooltip-container">
+            <!-- Sort -->
+            <div class="col-6 col-md d-flex flex-column align-items-center">
+              <label for="sortBy" class="form-label">Sort</label>
+              <div class="dropdown">
                 <button
-                  class="btn btn-success btn-sm"
-                  @mouseenter="hoveredId = entry.id"
-                  @mouseleave="hoveredId = null"
-                  @click="copyHighlight(entry.id)"
+                  class="btn btn-secondary dropdown-toggle"
+                  type="button"
+                  id="sortBy"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Sort by
+                </button>
+                <ul class="dropdown-menu col" aria-labelledby="sortBy">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      data-value="author"
+                      @click="selectSortOption('author')"
+                      >Author (Alphabetical)</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      data-value="highlightCountAuthor"
+                      @click="selectSortOption('highlightCountAuthor')"
+                      >Author (Highlights)</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      data-value="title"
+                      @click="selectSortOption('title')"
+                      >Title (Alphabetical)</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      data-value="highlightCountTitle"
+                      @click="selectSortOption('highlightCountTitle')"
+                      >Title (Highlights)</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Highlights -->
+            <div class="col-6 col-md d-flex flex-column align-items-center">
+              <label for="toggleHighlight" class="form-label">Highlights</label>
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="toggleHighlight"
+                  checked
+                  @change="toggleHighlights()"
+                />
+                <label class="form-check-label" for="toggleHighlight"></label>
+              </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="col-6 col-md d-flex flex-column align-items-center">
+              <label for="toggleMetadata" class="form-label">Metadata</label>
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="toggleMetadata"
+                  @change="toggleMetadata()"
+                />
+                <label class="form-check-label" for="toggleMetadata"></label>
+              </div>
+            </div>
+
+            <!-- Selection -->
+            <div class="col-6 col-md d-flex flex-column align-items-center">
+              <label for="toggleSelection" class="form-label"
+                >Selected ({{ store.totalSelected }})</label
+              >
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="toggleSelection"
+                  @change="toggleSelection()"
+                />
+                <label class="form-check-label" for="toggleSelection"></label>
+              </div>
+            </div>
+
+            <!-- Favorites -->
+            <div class="col-6 col-md d-flex flex-column align-items-center">
+              <label for="toggleSelection" class="form-label"
+                >Favorites ({{ store.totalFavorited }})</label
+              >
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="toggleFavorites"
+                  @change="toggleFavorites()"
+                />
+                <label class="form-check-label" for="toggleFavorites"></label>
+              </div>
+            </div>
+
+            <!-- Options Toggle -->
+
+            <div class="col-6 col-md d-flex flex-column align-items-center">
+              <label for="toggleEdits" class="form-label">Options</label>
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="toggleEdits"
+                  @change="toggleEdits"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#secondaryOptions"
+                />
+                <label class="form-check-label" for="toggleEdits"></label>
+              </div>
+            </div>
+
+            <!-- Dark mode -->
+
+            <div class="col-6 col-md d-flex flex-column align-items-center">
+              <label for="toggleTheme" class="form-label">Dark Mode</label>
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="toggleTheme"
+                  checked
+                  @change="toggleDark()"
+                />
+                <label class="form-check-label" for="toggleTheme"></label>
+              </div>
+            </div>
+          </div>
+          <!-- Secondary Options -->
+          <div class="collapse" id="secondaryOptions">
+            <hr />
+
+            <div class="row d-flex align-items-center">
+              <div class="col-6 col-md d-flex flex-column align-items-center">
+                <label class="form-label"><span>Displayed</span></label>
+                <div class="btn-group" role="group">
+                  <button class="btn btn-secondary col-md-auto" @click="selectAllDisplayed">
+                    Select All
+                  </button>
+                  <button class="btn btn-secondary col-md-auto" @click="deselectAllDisplayed">
+                    Deselect All
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-6 col-md d-flex flex-column align-items-center">
+                <label class="form-label"><span>Selection</span></label>
+
+                <div class="btn-group" role="group">
+                  <button class="btn btn-secondary col-md-auto" @click="favoriteSelected">
+                    Favorite
+                  </button>
+                  <button class="btn btn-secondary col-md-auto" @click="unfavoriteSelected">
+                    Unfavorite
+                  </button>
+                  <button class="btn btn-danger col-md-auto" @click="deleteSelected">Delete</button>
+                </div>
+              </div>
+
+              <!-- Undo -->
+              <div class="col-6 col-md d-flex flex-column align-items-center">
+                <label for="undoButton" class="form-label">
+                  <span> Undo Stack: {{ store.undoStack.length }}</span></label
+                >
+                <button id="undoButton" class="btn btn-secondary" @click="undo">Undo Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="container" style="overflow-y: auto; height: 900px">
+      <h5>Total Highlights: {{ store.totalHighlights }}</h5>
+      <!--Subtract 1 for 'All Authors'-->
+      <h6>Total Authors: {{ allAuthors.length - 1 }}</h6>
+      <div v-for="group in groupedHighlights" :key="group.author + group.booktitle">
+        <div
+          v-if="
+            store.highlightsPerBook[group.booktitle] > 0 &&
+            (!selectedActive || group.anySelected) &&
+            (!favoritesActive || group.anyFavorited)
+          "
+        >
+          <hr />
+          <h5>
+            {{ group.booktitle }}
+            <span class="text-muted-custom" v-if="metadataActive"
+              >({{ store.highlightsPerBook[group.booktitle] }} highlights)</span
+            >
+          </h5>
+          <h6>
+            {{ group.author }}
+            <span class="text-muted-custom" style="font-size: 1rem" v-if="metadataActive"
+              >({{ store.highlightsPerAuthor[group.author] }} highlights)</span
+            >
+          </h6>
+          <div v-for="(entry, index) in group.entry" :key="index">
+            <div
+              v-if="
+                !entry.deleted &&
+                (!selectedActive || entry.selected) &&
+                (!favoritesActive || entry.favorited)
+              "
+            >
+              <div v-if="metadataActive || highlightsActive || editsActive">
+                <hr />
+              </div>
+
+              <div
+                @mouseenter="hoveredId = entry.id"
+                @mouseleave="hoveredId = null"
+                @click="selectHighlight(entry.id)"
+                class="hover-container"
+                :style="{
+                  color: entry.selected ? 'var(--selected-color)' : 'inherit',
+                  backgroundColor:
+                    hoveredId === entry.id ? 'var(--hover-background-color)' : 'inherit',
+                }"
+              >
+                <p v-if="metadataActive" class="text-muted-custom">
+                  {{ entry.metadata }} | Characters: {{ entry.highlight.length }}
+                  <br />
+                </p>
+
+                <div v-if="highlightsActive">
+                  <p style="margin: 0px">{{ index + 1 }}. {{ entry.highlight }}</p>
+                </div>
+              </div>
+              <div v-if="editsActive" style="display: flex; gap: 10px">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  style="margin-top: 10px"
+                  @click="favoriteHighlight(entry.id)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    :fill="entry.favorited ? 'crimson' : 'silver'"
+                    class="bi bi-heart-fill"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"
+                    />
+                  </svg>
+                </button>
+
+                <button
+                  class="btn btn-primary btn-sm"
+                  @click="shareToBluesky(entry.id)"
                   style="margin-top: 10px"
                 >
-                  Copy
+                  Bluesky
+                  <font-awesome-icon :icon="['fab', 'bluesky']" />
                 </button>
-                <span v-if="showTooltip && hoveredId === entry.id" class="tooltip"
-                  >Copied to clipboard!</span
-                >
-              </div>
 
-              <button
-                class="btn btn-danger btn-sm"
-                @click="deleteHighlight(entry.id)"
-                style="margin-top: 10px"
-              >
-                Delete
-              </button>
+                <div class="tooltip-container">
+                  <button
+                    class="btn btn-success btn-sm"
+                    @mouseenter="hoveredId = entry.id"
+                    @mouseleave="hoveredId = null"
+                    @click="copyHighlight(entry.id)"
+                    style="margin-top: 10px"
+                  >
+                    Copy
+                  </button>
+                  <span v-if="showTooltip && hoveredId === entry.id" class="tooltip"
+                    >Copied to clipboard!</span
+                  >
+                </div>
+
+                <button
+                  class="btn btn-danger btn-sm"
+                  @click="deleteHighlight(entry.id)"
+                  style="margin-top: 10px"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, type Ref } from 'vue'
+import { ref, computed, type Ref } from 'vue'
 import { selectAuthor, SortOptions } from './state.ts'
 import { store } from './main.ts'
 import { handleFileUpload, uploadSample, saveHighlightsDF } from './fileHandler'
@@ -374,6 +374,24 @@ function handleClick(id: number) {
                       data-value="highlightCountTitle"
                       @click="selectSortOption('highlightCountTitle')"
                       >Title (Highlights)</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      data-value="highlightCountTitle"
+                      @click="selectSortOption('dateNewest')"
+                      >Newest</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="#"
+                      data-value="highlightCountTitle"
+                      @click="selectSortOption('dateOldest')"
+                      >Oldest</a
                     >
                   </li>
                 </ul>

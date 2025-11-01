@@ -51,10 +51,33 @@ export const useHighlightStore = defineStore('highlightStore', () => {
           (a, b) => highlightsPerBook.value[b.booktitle] - highlightsPerBook.value[a.booktitle],
         )
         break
+      case SortOptions.DATE_NEWEST:
+        results.sort((a, b) => sortDate(a.datetime, b.datetime))
+        break
+      case SortOptions.DATE_OLDEST:
+        results.sort((b, a) => sortDate(a.datetime, b.datetime))
+        break
     }
 
     return results
   })
+
+  function sortDate(a: Date | null, b: Date | null): number {
+    const tsA = a instanceof Date ? a.getTime() : NaN
+    const tsB = b instanceof Date ? b.getTime() : NaN
+
+    // Both valid → normal comparison
+    if (!isNaN(tsA) && !isNaN(tsB)) return tsB - tsA
+
+    // Only a has a valid date → a comes first (newer)
+    if (!isNaN(tsA)) return -1
+
+    // Only b has a valid date → b comes first (newer)
+    if (!isNaN(tsB)) return 1
+
+    // Neither has a valid date → keep original order
+    return 0
+  }
 
   const highlightsPerAuthor = computed(() => {
     return highlightsDF.reduce(
@@ -117,6 +140,7 @@ export type HighlightDF = {
   deleted: boolean
   selected: boolean
   favorited: boolean
+  datetime: Date | null
 }
 
 export function selectAuthor(selectedAuthor: string) {
@@ -129,4 +153,6 @@ export enum SortOptions {
   TITLE = 'title',
   HIGHLIGHT_COUNT_AUTHOR = 'highlightCountAuthor',
   HIGHLIGHT_COUNT_TITLE = 'highlightCountTitle',
+  DATE_NEWEST = 'dateNewest',
+  DATE_OLDEST = 'dateOldest',
 }

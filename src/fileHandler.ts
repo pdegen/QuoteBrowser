@@ -68,6 +68,7 @@ function parseClippings(content: string) {
       author: entry.author,
       highlight: entry.highlight,
       metadata: entry.metadata,
+      datetime: parseMetadataDate(entry.metadata),
       deleted: false,
       selected: false,
       favorited: entry.metadata.includes('$F'),
@@ -100,4 +101,43 @@ function saveToFile(content: string) {
   link.click()
 
   URL.revokeObjectURL(url) // Clean up
+}
+
+/**
+ * Helper: turn the "11 December 2024 12:15:00" string into a Date.
+ * Returns `null` if the pattern cannot be found – those items will be
+ * treated as the oldest (they sink to the bottom of the list).
+ */
+function parseMetadataDate(metadata: string): Date | null {
+  // Regex captures: day (1‑2 digits), month (full word), year (4 digits),
+  // hour (2), minute (2), second (2)
+  const dateRegex =
+    /(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})\s+(\d{2}):(\d{2}):(\d{2})/i
+
+  const match = metadata.match(dateRegex)
+  if (!match) return null
+
+  const [, dayStr, monthName, yearStr, hourStr, minuteStr, secondStr] = match
+
+  // Build an ISO‑8601 string that the JS Date constructor reliably parses:
+  // "YYYY-MM-DDTHH:mm:ss"
+  const monthIndex = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ].indexOf(monthName.charAt(0).toUpperCase() + monthName.slice(1).toLowerCase())
+
+  // monthIndex is 0‑based, pad month/day/hour/minute/second to two digits
+  const isoString = `${yearStr}-${String(monthIndex + 1).padStart(2, '0')}-${String(dayStr).padStart(2, '0')}T${hourStr}:${minuteStr}:${secondStr}`
+
+  return new Date(isoString)
 }

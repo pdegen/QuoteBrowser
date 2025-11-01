@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, type Ref } from 'vue'
+import { ref, computed, nextTick, type Ref } from 'vue'
 import { selectAuthor, SortOptions } from './state.ts'
 import { store } from './main.ts'
 import { handleFileUpload, uploadSample, saveHighlightsDF } from './fileHandler'
@@ -18,7 +18,10 @@ const metadataActive = ref(false)
 const editsActive = ref(false)
 const selectedActive = ref(false)
 const favoritesActive = ref(false)
+const showSnackbar = ref(false)
+const animKey = ref(0) // forces restart of snackbar show animation
 const hoveredId: Ref<number | null> = ref(null)
+const copyTimer: Ref<number | null> = ref(null)
 
 function toggleHighlights() {
   highlightsActive.value = !highlightsActive.value
@@ -188,17 +191,24 @@ function unfavoriteSelected() {
   })
 }
 
-const showTooltip = ref(false)
 const copyHighlight = async (id: number) => {
   const text = store.filteredHighlights.find((h) => h.id === id)?.highlight
   if (!text) return
+
   try {
-    await navigator.clipboard.writeText(text).then(() => {
-      showTooltip.value = true
-      setTimeout(() => {
-        showTooltip.value = false
-      }, 1000)
-    })
+    await navigator.clipboard.writeText(text)
+
+    if (copyTimer.value !== null) {
+      clearTimeout(copyTimer.value)
+    }
+
+    showSnackbar.value = true
+    animKey.value++ // forces restart of show animation
+
+    copyTimer.value = window.setTimeout(() => {
+      showSnackbar.value = false
+      copyTimer.value = null
+    }, 3000)
   } catch (err) {
     console.error('Failed to copy: ', err)
   }
@@ -213,6 +223,11 @@ const shareToBluesky = (id: number) => {
   const encodedText = encodeURIComponent(text) // URL-escaping
   const url = `https://bsky.app/intent/compose?text=${encodedText}`
   window.open(url, '_blank') // Open in a new tab
+}
+
+function handleClick(id: number) {
+  selectHighlight(id)
+  copyHighlight(id)
 }
 </script>
 
@@ -553,7 +568,7 @@ const shareToBluesky = (id: number) => {
               <div
                 @mouseenter="hoveredId = entry.id"
                 @mouseleave="hoveredId = null"
-                @click="selectHighlight(entry.id)"
+                @click="handleClick(entry.id)"
                 class="hover-container"
                 :style="{
                   color: entry.selected ? 'var(--selected-color)' : 'inherit',
@@ -601,20 +616,15 @@ const shareToBluesky = (id: number) => {
                   <font-awesome-icon :icon="['fab', 'bluesky']" />
                 </button>
 
-                <div class="tooltip-container">
-                  <button
-                    class="btn btn-success btn-sm"
-                    @mouseenter="hoveredId = entry.id"
-                    @mouseleave="hoveredId = null"
-                    @click="copyHighlight(entry.id)"
-                    style="margin-top: 10px"
-                  >
-                    Copy
-                  </button>
-                  <span v-if="showTooltip && hoveredId === entry.id" class="tooltip"
-                    >Copied to clipboard!</span
-                  >
-                </div>
+                <button
+                  class="btn btn-success btn-sm"
+                  @mouseenter="hoveredId = entry.id"
+                  @mouseleave="hoveredId = null"
+                  @click="copyHighlight(entry.id)"
+                  style="margin-top: 10px"
+                >
+                  Copy
+                </button>
 
                 <button
                   class="btn btn-danger btn-sm"
@@ -629,6 +639,9 @@ const shareToBluesky = (id: number) => {
         </div>
       </div>
     </div>
+
+    <!-- Snackbars -->
+    <div v-if="showSnackbar" :key="animKey" id="snackbar" class="show">Copied to clipboard!</div>
   </div>
 </template>
 
@@ -653,25 +666,76 @@ const shareToBluesky = (id: number) => {
   color: #dc3545; /* Bootstrap's 'text-danger' color */
 }
 
-.tooltip-container {
-  position: relative;
-  display: inline-block;
-  overflow: visible; /* Ensure tooltip is visible outside */
+/* The snackbar - position it at the bottom and in the middle of the screen */
+#snackbar {
+  min-width: 250px; /* Set a default minimum width */
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 50%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
 }
 
-.tooltip {
-  position: absolute;
-  top: -35px; /* Adjust so it appears above the button */
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: black;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 12px;
-  white-space: nowrap;
-  opacity: 0.9;
-  z-index: 999; /* Ensure it's above other elements */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#snackbar.show {
+  visibility: visible; /* Show the snackbar */
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+  -webkit-animation:
+    fadein 0.5s,
+    fadeout 0.5s 2.5s;
+  animation:
+    fadein 0.5s,
+    fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
 }
 </style>
